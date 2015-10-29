@@ -1,0 +1,8 @@
+The directory contains thirdparty projects which were used to build the
+Codimension python control flow parser module.
+
+The PyCXX library could be downloaded from here:
+    http://sourceforge.net/projects/cxx/
+
+There is no need to build PyCXX separately. It is all covered in the module
+building procedure.
