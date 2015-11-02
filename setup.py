@@ -1,8 +1,9 @@
 #
 # -*- coding: utf-8 -*-
 #
-# codimension - graphics python two-way code editor and analyzer
-# Copyright (C) 2010  Sergey Satskiy <sergey.satskiy@gmail.com>
+# cdm-flowparser - python control flow parser used in Codimension to
+# automatically generate a flowchart like diagram
+# Copyright (C) 2010-2015  Sergey Satskiy <sergey.satskiy@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +17,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# $Id$
 #
 
 
@@ -49,16 +48,16 @@ setup( name = 'cdmcfparser',
        platforms = [ 'any' ],
        py_modules  = [ 'cdmcf' ],
        ext_modules = [ Extension( 'cdmcf',
-                                  sources = [ 'cflowmodule.cpp',
-                                              'cflowfragments.cpp',
-                                              'cflowutils.cpp',
-                                              'cflowparser.cpp',
-                                              'cflowcomments.cpp',
-                                              'pycxx/Src/cxxsupport.cxx',
-                                              'pycxx/Src/cxx_extensions.cxx',
-                                              'pycxx/Src/IndirectPythonInterface.cxx',
-                                              'pycxx/Src/cxxextensions.c' ],
-                                  include_dirs = [ 'pycxx', 'pycxx/Src' ],
+                                  sources = [ 'src/cflowmodule.cpp',
+                                              'src/cflowfragments.cpp',
+                                              'src/cflowutils.cpp',
+                                              'src/cflowparser.cpp',
+                                              'src/cflowcomments.cpp',
+                                              'thirdparty/pycxx/Src/cxxsupport.cxx',
+                                              'thirdparty/pycxx/Src/cxx_extensions.cxx',
+                                              'thirdparty/pycxx/Src/IndirectPythonInterface.cxx',
+                                              'thirdparty/pycxx/Src/cxxextensions.c' ],
+                                  include_dirs = [ 'thirdparty/pycxx', 'thirdparty/pycxx/Src', 'src' ],
                                   extra_compile_args = [ '-Wno-unused', '-fomit-frame-pointer',
                                                          '-DCDM_PY_PARSER_VERSION="' + version + '"',
                                                          '-ffast-math',

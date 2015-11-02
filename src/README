@@ -1,2 +1,2 @@
-This directory contains implementation of the Python parser used
+This directory contains implementation of the Python control flow parser used
 in Codimension to represent control flow.

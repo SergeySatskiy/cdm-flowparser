@@ -1,3 +1,9 @@
+2015 Nov 02  Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Moving from the 'codimension' repository to the separate 'cdm-flowparser'
+  repository
+
+
 2014 May 14  Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Development started using the pycxx library
