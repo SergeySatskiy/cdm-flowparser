@@ -25,6 +25,7 @@
 import unittest
 import os.path
 import sys
+import cdmcf
 from cdmcf import ( getControlFlowFromMemory,
                     getControlFlowFromFile, VERSION )
 
@@ -111,7 +112,7 @@ class CDMControlFlowParserTest( unittest.TestCase ):
     def setUp( self ):
         " Initialisation "
 
-        self.dir = "unittest" + os.path.sep
+        self.dir = os.path.dirname( os.path.abspath( __file__ ) ) + os.path.sep
         if not os.path.isdir( self.dir ):
             raise Exception( "Cannot find directory with tests. "
                              "Expected here: " + self.dir )
@@ -402,5 +403,6 @@ class CDMControlFlowParserTest( unittest.TestCase ):
 # Run the unit tests
 if __name__ == '__main__':
     print "Testing control flow parser version: " + VERSION
+    print "Module location: " + cdmcf.__file__
     unittest.main()
 
