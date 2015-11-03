@@ -58,3 +58,7 @@ target/
 
 # Unit tests
 tests/*.out
+
+# Utility binaries
+src/comments
+src/tree
