@@ -1,5 +1,5 @@
 # cdm-flowparser
-Python control flow parser module is a Python extension module.
+Python control flow parser module is a Python 2 extension module.
 It takes a file with a python code (or a character buffer), parses it and
 provides back a hierarchical representation of the code in terms of fragments.
 Each fragment describes a portion of the input content:
