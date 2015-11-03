@@ -54,3 +54,6 @@ clean:
 check:
 	PYTHONPATH=../:${PYTHONPATH} ../tests/ut.py
 
+localinstall:
+	cd .. && python setup.py install --user
+

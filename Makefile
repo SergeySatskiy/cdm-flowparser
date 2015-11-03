@@ -17,7 +17,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-.PHONY: all clean check
+.PHONY: all clean check localinstall
 
 
 all:
@@ -28,4 +28,7 @@ clean:
 
 check:
 	cd src && $(MAKE) check
+
+localinstall:
+	cd src && $(MAKE) localinstall
 
