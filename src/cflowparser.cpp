@@ -1621,7 +1621,7 @@ processImport( Context *  context,
                     if ( child->n_nchildren == 3 )
                     {
                         node *  asNameNode = &(child->n_child[ 2 ]);
-                        context->sysExit.insert( asNameNode->n_str );
+                        context->sysExit.insert( asNameNode->n_str + std::string( ".exit" ) );
                     }
                     else
                     {
