@@ -23,6 +23,7 @@
 #include <stdlib.h>
 
 #include <string>
+#include <limits>
 
 #include "cflowfragments.hpp"
 #include "cflowfragmenttypes.hpp"
@@ -873,17 +874,39 @@ Py::Object  Comment::getDisplayValue( const Py::Tuple &  args )
     Fragment *  firstFragment( static_cast<Fragment *>(parts[ 0 ].ptr()) );
     INT_TYPE    minShift( firstFragment->beginPos );
     bool        sameShift( true );
+    size_t      minPostHashSpaces( std::numeric_limits< size_t >::max() );
+    std::string lineContent;
 
-    for ( Py::List::size_type k( 1 ); k < partCount; ++k )
+    for ( Py::List::size_type k( 0 ); k < partCount; ++k )
     {
-        INT_TYPE    shift( static_cast<Fragment *>(parts[ k ].ptr())->beginPos );
+        Fragment *  currentFragment( static_cast<Fragment *>(parts[ k ].ptr()) );
+        INT_TYPE    shift( currentFragment->beginPos );
         if ( shift != minShift )
         {
             sameShift = false;
             if ( shift < minShift )
                 minShift = shift;
         }
+
+        size_t      postHashSpaces( 0 );
+
+        lineContent = currentFragment->getContent( bufPointer );
+        if ( lineContent.size() > 1 )
+        {
+            for ( size_t  index = 1; index < lineContent.size(); ++index )
+            {
+                if ( lineContent[ index ] != ' ' )
+                    break;
+                ++postHashSpaces;
+            }
+            if ( postHashSpaces < minPostHashSpaces )
+                minPostHashSpaces = postHashSpaces;
+        }
     }
+
+    // Check if a comment contains only lines with the only '#' character
+    if ( minPostHashSpaces == std::numeric_limits< size_t >::max() )
+        minPostHashSpaces = 0;
 
     std::string      content;
     INT_TYPE         currentLine( firstFragment->beginLine );
@@ -900,7 +923,12 @@ Py::Object  Comment::getDisplayValue( const Py::Tuple &  args )
         if ( !sameShift )
             if ( currentFragment->beginPos > minShift )
                 content += std::string( currentFragment->beginPos - minShift, ' ' );
-        content += currentFragment->getContent( bufPointer );
+        lineContent = currentFragment->getContent( bufPointer );
+
+        // Strip the '#' character -- 1
+        // Strip the common number of post '#' spaces
+        if ( lineContent.size() > 1 )
+            content += lineContent.substr( 1 + minPostHashSpaces );
 
         currentLine = currentFragment->beginLine;
     }
