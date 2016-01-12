@@ -968,8 +968,8 @@ processAssert( Context *  context,
         node *          secondTestLastPart = findLastPart( secondTestNode );
 
         message->parent = a;
-        updateBegin( message, secondTestNode, context->lineShifts );
-        updateEnd( message, secondTestLastPart, context->lineShifts );
+        safeUpdateBegin( context, secondTestNode, message );
+        safeUpdateEnd( context, secondTestLastPart, message );
 
         a->updateEnd( message );
         a->message = Py::asObject( message );
@@ -1007,7 +1007,7 @@ processRaise( Context *  context,
     if ( testNode != NULL )
     {
         Fragment *      val( new Fragment );
-        node *          lastPart = findLastPart( tree );
+        node *          lastPart = findLastPart( testNode );
 
         val->parent = r;
         safeUpdateBegin( context, testNode, val );
