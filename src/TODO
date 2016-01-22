@@ -1,2 +1,3 @@
 DONE - sys.exit handling
 - more unit tests
+- recognize yield
