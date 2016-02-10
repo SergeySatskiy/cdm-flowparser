@@ -292,11 +292,11 @@ void getLineShiftsAndComments( const char *  buffer, int *  lineShifts,
 // - value name
 // - '=' character
 std::string  getCMLCommentToken( const std::string &  comment,
-                                 size_t &  pos )
+                                 ssize_t &  pos )
 {
     skipSpaces( comment, pos );
 
-    size_t          lastPos( comment.size() - 1 );
+    ssize_t         lastPos( comment.size() - 1 );
     std::string     token;
 
     while ( pos <= lastPos )
@@ -327,12 +327,12 @@ std::string  getCMLCommentToken( const std::string &  comment,
 // It is used to get a value. '"' characters are stripped and if there are many
 // parts then they are merged.
 std::string  getCMLCommentValue( const std::string &  comment,
-                                 size_t &  pos,
+                                 ssize_t &  pos,
                                  std::string &  warning )
 {
     skipSpaces( comment, pos );
 
-    size_t          lastPos( comment.size() - 1 );
+    ssize_t         lastPos( comment.size() - 1 );
     if ( pos > lastPos )
         return "";
 
@@ -365,7 +365,7 @@ std::string  getCMLCommentValue( const std::string &  comment,
             // That's the end of the value or of a part.
             // It might be that the value continues in the next part so we need
             // to look ahead.
-            size_t      tempPos( pos );
+            ssize_t     tempPos( pos );
             skipSpaces( comment, tempPos );
             if ( tempPos <= lastPos )
             {
@@ -389,9 +389,9 @@ std::string  getCMLCommentValue( const std::string &  comment,
 }
 
 void  skipSpaces( const std::string &  comment,
-                  size_t &  pos )
+                  ssize_t &  pos )
 {
-    size_t      lastPos( comment.size() - 1 );
+    ssize_t     lastPos( comment.size() - 1 );
     while ( pos <= lastPos )
     {
         if ( isspace( comment[ pos ] ) == 0 )

@@ -1092,7 +1092,7 @@ void CMLComment::extractProperties( Context *  context )
 
     // version, recordType, properties
     std::string     token;
-    size_t          pos( 0 );
+    ssize_t         pos( 0 );
 
     // Version
     token = getCMLCommentToken( completed, pos );

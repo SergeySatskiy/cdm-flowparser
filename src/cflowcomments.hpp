@@ -69,12 +69,12 @@ void getLineShiftsAndComments( const char *  buffer, int *  lineShifts,
 
 // CML comments parsing support
 std::string  getCMLCommentToken( const std::string &  comment,
-                                 size_t &  pos );
+                                 ssize_t &  pos );
 std::string  getCMLCommentValue( const std::string &  comment,
-                                 size_t &  pos,
+                                 ssize_t &  pos,
                                  std::string &  warning );
 void  skipSpaces( const std::string &  comment,
-                  size_t &  pos );
+                  ssize_t &  pos );
 
 #endif
 
