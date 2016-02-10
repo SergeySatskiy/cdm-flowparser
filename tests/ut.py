@@ -201,6 +201,29 @@ class CDMControlFlowParserTest( unittest.TestCase ):
                    "error collecting cml with cml+" )
         return
 
+    def test_cml4( self ):
+        " No record type "
+        self.meat( self.dir + "cml4.py",
+                   "error collecting cml without a record type" )
+
+    def test_cml5( self ):
+        " No cml version "
+        self.meat( self.dir + "cml5.py",
+                   "error collecting cml without a cml version" )
+        return
+
+    def test_cml6( self ):
+        " No cml value "
+        self.meat( self.dir + "cml6.py",
+                   "error collecting cml without a value" )
+        return
+
+    def test_cml7( self ):
+        " No cml properties "
+        self.meat( self.dir + "cml7.py",
+                   "error collecting cml without any properties" )
+        return
+
     def test_docstring1( self ):
         " Test docstring 1 "
         self.meat( self.dir + "docstring1.py",
