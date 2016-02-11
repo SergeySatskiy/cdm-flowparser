@@ -107,5 +107,6 @@ from cdmcf import getControlFlowFromFile
 controlFlow = getControlFlowFromFile( "my-file.py" )
 
 # Serializes nicely the controlFlow object
+# See the run.py for the details of how it is done
 ```
 
