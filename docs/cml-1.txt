@@ -1,0 +1,15 @@
+The file has a description of all the CML comments supported by version 1.
+
+CML v.1 comments
+----------------
+
+1. If statements branch switching
+# cml 1 SW
+
+The 'SW' CML comment is allowed for 'if' and 'elif' statements.
+The default location of the branches is YES-branch on the right.
+If the 'SW' CML leading comment is found then the branches are switched and
+YES-branch is drawn below.
+
+If more than one 'SW' CML comment is found then only the first one is processed.
+
