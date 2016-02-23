@@ -570,6 +570,9 @@ class ElifPart : public FragmentBase,
 };
 
 
+// Note: the If class is rather a container of parts so
+//       it has body == None all the time.
+//       This is individual parts which have the body set approprietly
 class If : public FragmentBase,
            public FragmentWithComments,
            public Py::PythonExtension< If >
@@ -584,12 +587,8 @@ class If : public FragmentBase,
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
 
-        Py::Object getDisplayValue( const Py::Tuple &  args );
-
     public:
-        Py::Object      condition;
-        Py::List        nsuite;     // List of suite statement fragments
-        Py::List        elifParts;  // List of ElifPart fragments
+        Py::List        parts;      // List of ElifPart fragments
 };
 
 
