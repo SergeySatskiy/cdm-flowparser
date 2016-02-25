@@ -1135,44 +1135,10 @@ processIf( Context *  context,
         node *  child = &(tree->n_child[ k ]);
         if ( child->n_type == NAME )
         {
-            if ( strcmp( child->n_str, "if" ) == 0 )
-            {
-                node *      conditionNode = child + 1;
-                assert( conditionNode->n_type == test );
-
-                node *      last = findLastPart( conditionNode );
-                Fragment *  condition( new Fragment );
-                condition->parent = ifStatement;
-                safeUpdateBegin( context, conditionNode, condition );
-                safeUpdateEnd( context, last, condition );
-                ifStatement->condition = Py::asObject( condition );
-
-                node *      colonNode = conditionNode + 1;
-                node *      suiteNode = colonNode + 1;
-
-                Fragment *      body( new Fragment );
-                body->parent = ifStatement;
-                updateBegin( body, tree, context->lineShifts );
-                updateEnd( body, colonNode, context->lineShifts );
-                ifStatement->updateBeginEnd( body );
-                ifStatement->body = Py::asObject( body );
-
-                injectComments( context, flow, parent,
-                                ifStatement, ifStatement );
-                FragmentBase *  lastAdded = walk( context, suiteNode, ifStatement,
-                                                  ifStatement->nsuite, false );
-                if ( lastAdded == NULL )
-                    ifStatement->updateEnd( body );
-                else
-                    ifStatement->updateEnd( lastAdded );
-            }
-            else
-            {
-                ElifPart *  elifPart = processElifPart( context, flow, child,
+            ElifPart *  elifPart = processElifPart( context, flow, child,
                                                         ifStatement );
-                ifStatement->updateBegin( elifPart );
-                ifStatement->elifParts.append( Py::asObject( elifPart ) );
-            }
+            ifStatement->updateBegin( elifPart );
+            ifStatement->parts.append( Py::asObject( elifPart ) );
         }
     }
 

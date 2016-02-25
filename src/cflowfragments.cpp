@@ -3002,7 +3002,6 @@ Py::Object  ElifPart::getDisplayValue( const Py::Tuple &  args )
 If::If()
 {
     kind = IF_FRAGMENT;
-    condition = Py::None();
 }
 
 If::~If()
@@ -3022,8 +3021,6 @@ void If::initType( void )
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
                         GETLINECONTENT_DOC );
-    add_varargs_method( "getDisplayValue", &If::getDisplayValue,
-                        IF_GETDISPLAYVALUE_DOC );
 
     behaviors().readyType();
 }
@@ -3036,9 +3033,7 @@ Py::Object If::getattr( const char *  attrName )
         Py::List    members;
         FragmentBase::appendMembers( members );
         FragmentWithComments::appendMembers( members );
-        members.append( Py::String( "condition" ) );
-        members.append( Py::String( "suite" ) );
-        members.append( Py::String( "elifParts" ) );
+        members.append( Py::String( "parts" ) );
         return members;
     }
 
@@ -3047,12 +3042,8 @@ Py::Object If::getattr( const char *  attrName )
         return retval;
     if ( FragmentWithComments::getAttribute( attrName, retval ) )
         return retval;
-    if ( strcmp( attrName, "condition" ) == 0 )
-        return condition;
-    if ( strcmp( attrName, "suite" ) == 0 )
-        return nsuite;
-    if ( strcmp( attrName, "elifParts" ) == 0 )
-        return elifParts;
+    if ( strcmp( attrName, "parts" ) == 0 )
+        return parts;
     return getattr_methods( attrName );
 }
 
@@ -3060,9 +3051,7 @@ Py::Object  If::repr( void )
 {
     return Py::String( "<If " + FragmentBase::as_string() +
                        "\n" + FragmentWithComments::as_string() +
-                       "\n" + representFragmentPart( condition, "Condition" ) +
-                       "\n" + representList( nsuite, "Suite" ) +
-                       "\n" + representList( elifParts, "ElifParts" ) +
+                       "\n" + representList( parts, "Parts" ) +
                        ">" );
 }
 
@@ -3073,57 +3062,18 @@ int  If::setattr( const char *        attrName,
         return 0;
     if ( FragmentWithComments::setAttribute( attrName, val ) )
         return 0;
-    if ( strcmp( attrName, "condition" ) == 0 )
-    {
-        CHECKVALUETYPE( "condition", "Fragment" );
-        condition = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
+    if ( strcmp( attrName, "parts" ) == 0 )
     {
         if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
+            throw Py::AttributeError( "Attribute 'parts' value "
                                       "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "elifParts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'elifParts' value "
-                                      "must be a list" );
-        elifParts = Py::List( val );
+        parts = Py::List( val );
         return 0;
     }
     throwUnknownAttribute( attrName );
     return -1;  // Suppress compiler warning
 }
 
-
-Py::Object  If::getDisplayValue( const Py::Tuple &  args )
-{
-    Fragment *      condFragment( static_cast<Fragment *>(condition.ptr()) );
-    std::string     content;
-    switch ( args.length() )
-    {
-        case 0:
-            content = condFragment->getContent( NULL );
-            break;
-        case 1:
-            {
-                std::string  buf( Py::String( args[ 0 ] ).as_std_string() );
-                content = condFragment->getContent( buf.c_str() );
-                break;
-            }
-        default:
-            throwWrongBufArgument( "getDisplayValue" );
-    }
-
-    // The content may be shifted and may have side comments.
-    // The common shift should be shaved as well the comments
-    return Py::String( alignBlockAndStripSideComments( content,
-                                                       condFragment ) );
-}
 
 
 // --- End of If definition ---
