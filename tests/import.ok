@@ -60,21 +60,27 @@
          WhatPart: [212:214] (10,15) (10,17)
         >
         <If [217:243] (12,1) (13,19)
-         Body: [217:223] (12,1) (12,7)
+         Body: None
          LeadingComment: None
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
-         Condition: [220:222] (12,4) (12,6)
-         Suite: <Import [229:243] (13,5) (13,19)
-                 Body: [229:243] (13,5) (13,19)
+         Parts: <ElifPart [217:243] (12,1) (13,19)
+                 Body: [217:223] (12,1) (12,7)
                  LeadingComment: None
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
-                 FromPart: None
-                 WhatPart: [236:243] (13,12) (13,19)
+                 Condition: [220:222] (12,4) (12,6)
+                 Suite: <Import [229:243] (13,5) (13,19)
+                         Body: [229:243] (13,5) (13,19)
+                         LeadingComment: None
+                         SideComment: None
+                         LeadingCMLComments: n/a
+                         SideCMLComments: n/a
+                         FromPart: None
+                         WhatPart: [236:243] (13,12) (13,19)
+                        >
                 >
-         ElifParts: n/a
         >
 >
