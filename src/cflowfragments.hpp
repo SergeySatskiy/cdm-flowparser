@@ -658,6 +658,7 @@ class Try : public FragmentBase,
 
 
 class ControlFlow : public FragmentBase,
+                    public FragmentWithComments,
                     public Py::PythonExtension< ControlFlow >
 {
     public:

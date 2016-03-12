@@ -35,6 +35,7 @@
 #include "cflowparser.hpp"
 #include "cflowfragments.hpp"
 #include "cflowcomments.hpp"
+#include "cflowutils.hpp"
 
 
 extern grammar      _PyParser_Grammar;  /* From graminit.c */
@@ -341,13 +342,13 @@ safeUpdateEnd( Context *   context,
 
 
 // It also discards the comment from the deque if it is a bang line
-static void
+static FragmentBase *
 checkForBangLine( const char *  buffer,
                   ControlFlow *  controlFlow,
                   std::deque< CommentLine > &  comments )
 {
     if ( comments.empty() )
-        return;
+        return NULL;
 
     CommentLine &       comment( comments.front() );
     if ( comment.line == 1 && comment.end - comment.begin > 1 &&
@@ -368,16 +369,19 @@ checkForBangLine( const char *  buffer,
 
         // Discard the shebang comment
         comments.pop_front();
+
+        return bangLine;
     }
-    return;
+    return NULL;
 }
 
 
 // It also discards the comment from the deque
-static void processEncoding( const char *   buffer,
-                             node *         tree,
-                             ControlFlow *  controlFlow,
-                             std::deque< CommentLine > &  comments )
+static FragmentBase *
+processEncoding( const char *   buffer,
+                 node *         tree,
+                 ControlFlow *  controlFlow,
+                 std::deque< CommentLine > &  comments )
 {
     /* Unfortunately, the parser does not provide the position of the encoding
      * so it needs to be calculated
@@ -396,7 +400,7 @@ static void processEncoding( const char *   buffer,
     */
 
     if ( comments.empty() )
-        return;
+        return NULL;
 
     // It could be that the very first line starts with '#' however it is
     // not a hash bang line. In this case the encoding is in the second line.
@@ -430,7 +434,7 @@ static void processEncoding( const char *   buffer,
     comments.pop_front();
     if ( needInsertBack )
         comments.push_front( temp );
-    return;
+    return encodingLine;
 }
 
 
@@ -1813,6 +1817,8 @@ checkForDocstring( Context *  context, node *  tree )
         return NULL;
 
     Docstring *     docstr( new Docstring );
+    Fragment *      body( new Fragment );
+    body->parent = docstr;
 
     /* Atom has to have children of the STRING type only */
     node *          stringChild;
@@ -1824,6 +1830,7 @@ checkForDocstring( Context *  context, node *  tree )
         if ( stringChild->n_type != STRING )
         {
             delete docstr;
+            delete body;
             return NULL;
         }
 
@@ -1846,8 +1853,10 @@ checkForDocstring( Context *  context, node *  tree )
         // so there is no need to optimize via updateBegin() & updateEnd()
         docstr->updateBeginEnd( part );
         docstr->parts.append( Py::asObject( part ) );
+        body->updateBeginEnd( part );
     }
 
+    docstr->body = Py::asObject( body );
     return docstr;
 }
 
@@ -2424,6 +2433,67 @@ walk( Context *                    context,
 }
 
 
+
+static int
+getLastFileCommentLine( Context * context, int  expectedFirstLine )
+{
+    // expectedFirstLine is 1 or the next line after hashbang or encoding line.
+    // There is one peculiar case to consider:
+    // - there is no hashbang line, but the '#' character is there
+    // - there is encoding line and it is at line 2
+    // => here the expected line will be 3 but the first comment will be at
+    //    line 1. It was decided to do the following in this case:
+    // - if the line 1 comment is not empty, then the comment is considered as
+    //   for a file one. if the comment is empty then it is discarded and the
+    //   comment for a file is searched as there was no that empty comment.
+
+    if ( context->comments->empty() )
+        return -1;      // No comment for the file
+
+    const CommentLine &     first = context->comments->front();
+    if ( first.line > expectedFirstLine )
+        return -1;      // No comment for the file
+
+
+    if ( first.line < expectedFirstLine )
+    {
+        // Special case described above
+        std::string     content( & context->buffer[ first.begin ],
+                                 first.end - first.begin + 1 );
+        trimInplace( content );
+        if ( content == "#" )
+        {
+            context->comments->pop_front();
+
+            if ( context->comments->empty() )
+                return -1;      // No comment for the file
+            if ( context->comments->front().line > expectedFirstLine )
+                return -1;      // No comment for the file
+        }
+        else
+        {
+            // The very first line is not empty, so use it for the file comment
+            return first.line;
+        }
+    }
+
+    // Check the lines after the encoding and hashbang
+    int     lastInBlock( expectedFirstLine );
+    for ( std::deque< CommentLine >::const_iterator
+            k = context->comments->begin();
+            k != context->comments->end(); ++k )
+    {
+        if ( k->line > lastInBlock + 1 )
+            break;
+
+        lastInBlock = k->line;
+    }
+
+    return lastInBlock;
+}
+
+
+
 Py::Object  parseInput( const char *  buffer, const char *  fileName,
                         bool  serialize )
 {
@@ -2453,18 +2523,25 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         /* Walk the tree and populate the python structures */
         node *      root = tree;
         int         totalLines = getTotalLines( tree );
+        int         fileCommentFirstLine = 1;
 
         assert( totalLines >= 0 );
         int                         lineShifts[ totalLines + 1 ];
         std::deque< CommentLine >   comments;
 
         getLineShiftsAndComments( buffer, lineShifts, comments );
-        checkForBangLine( buffer, controlFlow, comments );
+        FragmentBase *      bang = checkForBangLine( buffer, controlFlow,
+                                                     comments );
+        if ( bang != NULL )
+            fileCommentFirstLine = bang->beginLine + 1;
 
         if ( root->n_type == encoding_decl )
         {
-            processEncoding( buffer, tree, controlFlow, comments );
+            FragmentBase *  encoding = processEncoding( buffer, tree,
+                                                        controlFlow, comments );
             root = & (root->n_child[ 0 ]);
+            if ( encoding != NULL )
+                fileCommentFirstLine = encoding->beginLine + 1;
         }
 
 
@@ -2478,7 +2555,19 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         context.lineShifts = lineShifts;
         context.comments = & comments;
 
-        // Check for the docstring first
+        // A file may also have leading comments
+        int     lastFileCommentLine = getLastFileCommentLine( & context,
+                                                              fileCommentFirstLine );
+        if ( lastFileCommentLine != -1 )
+        {
+            // A leading comment for a file has been detected. Inject it to the
+            // context object.
+            injectLeadingComments( & context, controlFlow->nsuite,
+                                   controlFlow, controlFlow, controlFlow,
+                                   lastFileCommentLine + 1, false );
+        }
+
+        // Check for the docstring
         Docstring *  docstr = checkForDocstring( & context, root );
         if ( docstr != NULL )
         {
@@ -2496,6 +2585,26 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         // Inject trailing comments if so
         injectLeadingComments( & context, controlFlow->nsuite,
                                controlFlow, NULL, NULL, INT_MAX, false );
+
+        if ( controlFlow->nsuite.size() > 0 )
+        {
+            // If the is nothing in the file => body is None
+            // Here: there is something, so create the real body fragment, i.e.
+            // everything except the 2 special purpose comment lines and
+            // possible a comment for the file
+            Fragment *      body( new Fragment );
+            body->parent = controlFlow;
+
+            Py::Object      fo = controlFlow->nsuite.front();
+            body->begin = Py::Long( fo.getAttr( "begin" ) );
+            body->beginLine = Py::Long( fo.getAttr( "beginLine" ) );
+            body->beginPos = Py::Long( fo.getAttr( "beginPos" ) );
+
+            // The control flow end had been already properly updated
+            body->updateEnd( controlFlow );
+
+            controlFlow->body = Py::asObject( body );
+        }
     }
 
     return Py::asObject( controlFlow );

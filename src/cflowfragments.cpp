@@ -1278,7 +1278,8 @@ Py::Object  Docstring::getDisplayValue( const Py::Tuple &  args )
         throw std::exception();     // suppress compiler warning
     }
 
-    std::string     rawContent( FragmentBase::getContent( bufPointer ) );
+    Fragment *      bodyFragment( static_cast<Fragment *>(body.ptr()) );
+    std::string     rawContent( bodyFragment->getContent( bufPointer ) );
     size_t          stripCount( 1 );
     if ( strncmp( rawContent.c_str(), "'''", 3 ) == 0 ||
          strncmp( rawContent.c_str(), "\"\"\"", 3 ) == 0 )
@@ -3426,6 +3427,7 @@ ControlFlow::ControlFlow()
     bangLine = Py::None();
     encodingLine = Py::None();
     docstring = Py::None();
+    body = Py::None();
 }
 
 ControlFlow::~ControlFlow()
@@ -3462,6 +3464,7 @@ Py::Object ControlFlow::getattr( const char *  attrName )
     {
         Py::List    members;
         FragmentBase::appendMembers( members );
+        FragmentWithComments::appendMembers( members );
         members.append( Py::String( "bangLine" ) );
         members.append( Py::String( "encodingLine" ) );
         members.append( Py::String( "docstring" ) );
@@ -3474,6 +3477,8 @@ Py::Object ControlFlow::getattr( const char *  attrName )
 
     Py::Object      retval;
     if ( FragmentBase::getAttribute( attrName, retval ) )
+        return retval;
+    if ( FragmentWithComments::getAttribute( attrName, retval ) )
         return retval;
     if ( strcmp( attrName, "bangLine" ) == 0 )
         return bangLine;
@@ -3499,6 +3504,7 @@ Py::Object  ControlFlow::repr( void )
         ok = "false";
 
     return Py::String( "<ControlFlow " + FragmentBase::as_string() +
+                       "\n" + FragmentWithComments::as_string() +
                        "\nisOK: " + ok +
                        "\n" + representList( errors, "Errors" ) +
                        "\n" + representList( warnings, "Warnings" ) +
@@ -3513,6 +3519,8 @@ int  ControlFlow::setattr( const char *        attrName,
                            const Py::Object &  val )
 {
     if ( FragmentBase::setAttribute( attrName, val ) )
+        return 0;
+    if ( FragmentWithComments::setAttribute( attrName, val ) )
         return 0;
     if ( strcmp( attrName, "bangLine" ) == 0 )
     {
