@@ -83,6 +83,7 @@ def formatFlow( s ):
 
 
 
+import cdmcf
 from cdmcf import getControlFlowFromFile, VERSION
 
 if len( sys.argv ) != 2:
@@ -90,6 +91,7 @@ if len( sys.argv ) != 2:
     sys.exit( 1 )
 
 print "Running control flow parser version: " + VERSION
+print "Module location: " + cdmcf.__file__
 
 controlFlow = getControlFlowFromFile( sys.argv[ 1 ] )
 print formatFlow( str( controlFlow ) )
