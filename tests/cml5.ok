@@ -1,15 +1,20 @@
 <ControlFlow [0:4] (1,1) (1,5)
+ Body: None
+ LeadingComment: None
+ SideComment: None
+ LeadingCMLComments: <CMLComment [0:4] (1,1) (1,5)
+                      Parts: <Fragment [0:4] (1,1) (1,5)
+                             >
+                      Version: 0
+                      RecordType: 
+                      Properties: {}
+                     >
+ SideCMLComments: n/a
  isOK: true
  Errors: n/a
  Warnings: (1, -1, 'Could not find CML version')
  BangLine: None
  EncodingLine: None
  Docstring: None
- Suite: <CMLComment [0:4] (1,1) (1,5)
-         Parts: <Fragment [0:4] (1,1) (1,5)
-                >
-         Version: 0
-         RecordType: 
-         Properties: {}
-        >
+ Suite: n/a
 >
