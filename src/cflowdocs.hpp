@@ -336,6 +336,10 @@
 #define CONTROLFLOW_DOC \
 "Represents one python file content"
 
+// ControlFlow::getDisplayValue()
+#define CONTROLFLOW_GETDISPLAYVALUE_DOC \
+"Provides the ecoding and hash bang line"
+
 
 #endif
 

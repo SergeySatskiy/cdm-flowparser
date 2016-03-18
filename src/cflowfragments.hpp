@@ -673,6 +673,7 @@ class ControlFlow : public FragmentBase,
         Py::Object repr( void );
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
 
     public:
         Py::Object  bangLine;       // None or BangLine instance

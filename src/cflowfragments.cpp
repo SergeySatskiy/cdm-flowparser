@@ -3472,6 +3472,8 @@ void ControlFlow::initType( void )
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
                         GETLINECONTENT_DOC );
+    add_varargs_method( "getDisplayValue", &ControlFlow::getDisplayValue,
+                        CONTROLFLOW_GETDISPLAYVALUE_DOC );
 
     behaviors().readyType();
 }
@@ -3604,4 +3606,30 @@ void  ControlFlow::addError( int  line, int  column,
                                Py::Int( column ),
                                Py::String( message ) ) );
 }
+
+
+Py::Object  ControlFlow::getDisplayValue( const Py::Tuple &  args )
+{
+    std::string     header( "Shebang line: " );
+
+    if ( bangLine.isNone() )
+        header += "not specified";
+    else
+    {
+        BangLine *      bl( static_cast< BangLine * >( bangLine.ptr() ) );
+        header += Py::String( bl->getDisplayValue( args ) );
+    }
+
+    header += "\nEncoding: ";
+    if ( encodingLine.isNone() )
+        header += "not specified";
+    else
+    {
+        EncodingLine *  el( static_cast< EncodingLine * >( encodingLine.ptr() ) );
+        header += Py::String( el->getDisplayValue( args ) );
+    }
+
+    return Py::String( header );
+}
+
 
