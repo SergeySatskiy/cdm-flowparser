@@ -63,7 +63,7 @@
 #define CREATE_DECORATOR_DOC \
 "Creates the Decorator class instance"
 
-// Import::getDisplayValue()
+// Decorator::getDisplayValue()
 #define DECORATOR_GETDISPLAYVALUE_DOC \
 "Provides the decorator without trailing spaces and comments"
 
@@ -260,9 +260,17 @@
 #define BREAK_DOC \
 "Represents a single break statement"
 
+// Break::getDisplayValue()
+#define BREAK_GETDISPLAYVALUE_DOC \
+"It is always a fixed string 'break'"
+
 // Continue class docstring
 #define CONTINUE_DOC \
 "Represents a single continue statement"
+
+// Continue::getDisplayValue()
+#define CONTINUE_GETDISPLAYVALUE_DOC \
+"It is always a fixed string 'continue'"
 
 // Return class docstring
 #define RETURN_DOC \
@@ -319,6 +327,10 @@
 // Try class docstring
 #define TRY_DOC \
 "Represents a single try statement"
+
+// Try::getDisplayValue()
+#define TRY_GETDISPLAYVALUE_DOC \
+"It is always a fixed string ''"
 
 // ControlFlow class docstring
 #define CONTROLFLOW_DOC \

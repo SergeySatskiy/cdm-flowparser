@@ -1142,14 +1142,8 @@ void CMLComment::extractProperties( Context *  context )
         token = getCMLCommentValue( completed, pos, warning );
         if ( ! warning.empty() )
         {
-            context->flow->addWarning( firstLine, -1, warning );
-            return;
-        }
-        if ( token.empty() )
-        {
             context->flow->addWarning( firstLine, -1,
-                                       "Could not find a property "
-                                       "value (property '"+ key + "')" );
+                                       warning + " (property '" + key + "')" );
             return;
         }
         this->properties.setItem( key, Py::String( token ) );
@@ -1947,6 +1941,8 @@ void Break::initType( void )
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
                         GETLINECONTENT_DOC );
+    add_varargs_method( "getDisplayValue", &Break::getDisplayValue,
+                        BREAK_GETDISPLAYVALUE_DOC );
 
     behaviors().readyType();
 }
@@ -1988,6 +1984,12 @@ int  Break::setattr( const char *        attrName,
 }
 
 
+Py::Object  Break::getDisplayValue( const Py::Tuple &  args )
+{
+    return Py::String( "break" );
+}
+
+
 // --- End of Break definition ---
 
 Continue::Continue()
@@ -2012,6 +2014,8 @@ void Continue::initType( void )
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
                         GETLINECONTENT_DOC );
+    add_varargs_method( "getDisplayValue", &Continue::getDisplayValue,
+                        CONTINUE_GETDISPLAYVALUE_DOC );
 
     behaviors().readyType();
 }
@@ -2051,6 +2055,13 @@ int  Continue::setattr( const char *        attrName,
     throwUnknownAttribute( attrName );
     return -1;  // Suppress compiler warning
 }
+
+
+Py::Object  Continue::getDisplayValue( const Py::Tuple &  args )
+{
+    return Py::String( "continue" );
+}
+
 
 // --- End of Continue definition ---
 
@@ -3333,6 +3344,8 @@ void Try::initType( void )
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
                         GETLINECONTENT_DOC );
+    add_varargs_method( "getDisplayValue", &Try::getDisplayValue,
+                        TRY_GETDISPLAYVALUE_DOC );
 
     behaviors().readyType();
 }
@@ -3417,6 +3430,12 @@ int  Try::setattr( const char *        attrName,
     throwUnknownAttribute( attrName );
     return -1;  // Suppress compiler warning
 }
+
+Py::Object  Try::getDisplayValue( const Py::Tuple &  args )
+{
+    return Py::String( "" );
+}
+
 
 // --- End of Try definition ---
 

@@ -334,10 +334,21 @@ std::string  getCMLCommentValue( const std::string &  comment,
 
     ssize_t         lastPos( comment.size() - 1 );
     if ( pos > lastPos )
+    {
+        warning = "Could not find a property value";
         return "";
+    }
 
     if ( comment[ pos ] != '"' )
-        return getCMLCommentToken( comment, pos );
+    {
+        std::string     token = getCMLCommentToken( comment, pos );
+        if ( token.empty() )
+        {
+            warning = "Could not find a property value";
+            return "";
+        }
+        return token;
+    }
 
     // Here: the value is in double quotes
     std::string     value;

@@ -376,6 +376,7 @@ class Break : public FragmentBase,
         Py::Object repr( void );
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
 };
 
 
@@ -392,6 +393,7 @@ class Continue : public FragmentBase,
         Py::Object repr( void );
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
 };
 
 
@@ -648,6 +650,7 @@ class Try : public FragmentBase,
         Py::Object repr( void );
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
 
     public:
         Py::List        nsuite;         // List of suite statement fragments
