@@ -514,7 +514,7 @@ injectLeadingComments( Context *  context,
                        FragmentWithComments *  statement, // could be NULL
                        FragmentBase *  statementAsParent, // could be NULL
                        int  firstStatementLine,
-                       bool  consumeAllLeading )
+                       bool  consumeAllAsLeading )
 {
     int     leadingLastLine = detectLeadingBlock( context,
                                                   firstStatementLine );
@@ -543,7 +543,7 @@ injectLeadingComments( Context *  context,
 
                 Fragment *      part( createCommentFragment( comment ) );
                 if ( leadingLastLine + 1 == firstStatementLine ||
-                     consumeAllLeading )
+                     consumeAllAsLeading )
                     part->parent = statementAsParent;
                 else
                     part->parent = flowAsParent;
@@ -584,7 +584,7 @@ injectLeadingComments( Context *  context,
                     {
                         Fragment *      part( createCommentFragment( comment ) );
                         if ( leadingLastLine + 1 == firstStatementLine ||
-                             consumeAllLeading )
+                             consumeAllAsLeading )
                             part->parent = statementAsParent;
                         else
                             part->parent = flowAsParent;
@@ -608,7 +608,7 @@ injectLeadingComments( Context *  context,
 
                 Fragment *      part( createCommentFragment( comment ) );
                 if ( leadingLastLine + 1 == firstStatementLine ||
-                     consumeAllLeading )
+                     consumeAllAsLeading )
                     part->parent = statementAsParent;
                 else
                     part->parent = flowAsParent;
@@ -636,7 +636,7 @@ injectLeadingComments( Context *  context,
         if ( leading != NULL )
         {
             if ( leadingLastLine + 1 == firstStatementLine ||
-                 consumeAllLeading )
+                 consumeAllAsLeading )
             {
                 statementAsParent->updateBeginEnd( leading );
                 statement->leadingComment = Py::asObject( leading );
@@ -870,12 +870,12 @@ injectComments( Context *  context,
                 FragmentBase *  flowAsParent,
                 FragmentWithComments *  statement,
                 FragmentBase *  statementAsParent,
-                bool  consumeAllLeading = false )
+                bool  consumeAllAsLeading = false )
 {
     injectLeadingComments( context, flow, flowAsParent, statement,
                            statementAsParent,
                            statementAsParent->beginLine,
-                           consumeAllLeading );
+                           consumeAllAsLeading );
     injectSideComments( context, statement, statementAsParent,
                         flowAsParent );
     return;
@@ -1077,9 +1077,12 @@ processElifPart( Context *  context, Py::List &  flow,
                  node *  tree, FragmentBase *  parent )
 {
     assert( tree->n_type == NAME );
+
+    bool            isIf( strcmp( tree->n_str, "if" ) == 0 );
+
     assert( strcmp( tree->n_str, "else" ) == 0 ||
             strcmp( tree->n_str, "elif" ) == 0 ||
-            strcmp( tree->n_str, "if" ) == 0 );
+            isIf );
 
     ElifPart *      elifPart( new ElifPart );
     elifPart->parent = parent;
@@ -1113,7 +1116,9 @@ processElifPart( Context *  context, Py::List &  flow,
     elifPart->updateBeginEnd( body );
     elifPart->body = Py::asObject( body );
 
-    injectComments( context, flow, parent, elifPart, elifPart, true );
+    // If it is not an 'if' statement, then all the comments should be consumed
+    // as leading
+    injectComments( context, flow, parent, elifPart, elifPart, ! isIf );
     FragmentBase *  lastAdded = walk( context, suiteNode, elifPart,
                                       elifPart->nsuite, false );
     if ( lastAdded == NULL )
@@ -1140,7 +1145,7 @@ processIf( Context *  context,
         if ( child->n_type == NAME )
         {
             ElifPart *  elifPart = processElifPart( context, flow, child,
-                                                        ifStatement );
+                                                    ifStatement );
             ifStatement->updateBegin( elifPart );
             ifStatement->parts.append( Py::asObject( elifPart ) );
         }
