@@ -24,6 +24,7 @@
 
 import os, os.path, sys
 import datetime
+import cdmcf
 from cdmcf import getControlFlowFromFile, VERSION
 
 
@@ -62,6 +63,7 @@ def cdmcfparserTest( files ):
 print "Speed test measures the time required for " \
       "cdmcf to parse python files."
 print "Parser version: " + VERSION
+print "Module location: " + cdmcf.__file__
 
 
 pythonFiles = []
