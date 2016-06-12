@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/SergeySatskiy/cdm-flowparser.svg?branch=master)](https://travis-ci.org/SergeySatskiy/cdm-flowparser)
 # cdm-flowparser
 cdm-flowparser project is a Python 2 extension module.
 It takes a file with a python code (or a character buffer), parses it and
