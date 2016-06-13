@@ -1,0 +1,37 @@
+sudo: required
+
+services:
+    - docker
+
+language: python
+
+python:
+    - "2.7"
+
+script:
+    - ./pkg/travis.sh
+
+env:
+  matrix:
+  - OS=ubuntu DIST=trusty PACK=deb
+  - OS=el DIST=7 PACK=rpm
+  - OS=fedora DIST=23 PACK=rpm
+  - OS=debian DIST=jessie PACK=deb
+
+notifications:
+  email: false
+  irc: false
+
+deploy:
+  provider: releases
+  api_key:
+    secure: 
+  file_glob: true
+  file:
+    - ../out/*.rpm
+    - ../out/*.deb
+  skip_cleanup: true
+  on:
+    tags: true
+    all_branches: true
+
