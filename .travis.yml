@@ -25,7 +25,7 @@ notifications:
 deploy:
   provider: releases
   api_key:
-    secure: 
+    secure: lfeC4o7gSI6q63JPD2qCoCj6Ui5iDCp++m9KHrBn+5B2It//PFCGsQheuPrtyZq5ktWn7zxY0actydm8IVyCLAvi0wg+Tft+PRjPecuc/VSm/qbkVZ0t+NYp0t+ikSrtmdwUeBDN/2et/PRPHWLY8i+WbCWgPaQlVBiP7CWAxc1YqMGE/dIpBRmtukuwTvAeYIiz2rVfkN1blaoIKSfNnTMu8xKpkdx+gaqgj8sat4DeYVAXqBWgIDlOwF6GdwoVBqyHFFRWuIu8gL58/hyE0RttmH7KjSJO14m1lZPum7aHNrrOkfIyy8SALzWUP5cS8QMxyIZDmwZ3mXXp4larwk+RdR6QHl5tV7mWxsAZUScoSFrL0T0XN529pzj9EwO7zW2ZNiIXLynL5M0sZ5XWHo9TP35+IL8jbQdZz+3vhvONpOqthPUQmp2mEe0YaVcC4jPYayap9dTG+sRCTENLAu1MtyMZ5ePDvplOLftGZs0XutKSoILaWNSkDjPxvivHZYTKSz5zohpMcbpPtBU1Q8mPVQsPSQ5fGlmIp9ZjJkpUYGoKnVcAm8ZJP/glUYjOE9DrDZrAMCVZIkmsye+jMYEd83Jzy4jsDFKL3j/YrTVfwsiYSs2P5l3xFr48KDmmIt/hOVYMe7+oYil8uxldN/hSfrJzXZqgGblYXoN5/BE=
   file_glob: true
   file:
     - ../out/*.rpm
