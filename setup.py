@@ -21,13 +21,17 @@
 
 
 from distutils.core import setup, Extension
+import os
 
 long_description = """Python language control flow parser.
 Written as a part of the Codimension project, this parser
 aims at pulling all the necessery data to build a control
 flow diagram."""
 
-version = 'trunk'
+try:
+	version = os.environ['CDM_PROJECT_BUILD_VERSION']
+except KeyError:
+	version = 'trunk'
 
 setup( name = 'cdmcfparser',
        description = 'Codimension Python Control Flow Parser',
@@ -59,7 +63,7 @@ setup( name = 'cdmcfparser',
                                               'thirdparty/pycxx/Src/cxxextensions.c' ],
                                   include_dirs = [ 'thirdparty/pycxx', 'thirdparty/pycxx/Src', 'src' ],
                                   extra_compile_args = [ '-Wno-unused', '-fomit-frame-pointer',
-                                                         '-DCDM_PY_PARSER_VERSION="' + version + '"',
+                                                         '-DCDM_CF_PARSER_VERSION="' + version + '"',
                                                          '-ffast-math',
                                                          '-O2' ],
                                 ) ] )

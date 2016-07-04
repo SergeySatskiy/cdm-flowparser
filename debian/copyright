@@ -1,6 +1,6 @@
 Upstream-Name: cdm-flowparser
 Upstream-Contact: Sergey Satskiy <sergey.satskiy@gmail.com>
-Source: https://code.google.com/p/codimension/
+Source: https://github.com/SergeySatskiy/cdm-flowparser
 
 Files: cdm-flowparser/*
 Copyright: 2010, 2011  Sergey Satskiy <sergey.satskiy@gmail.com>

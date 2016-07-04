@@ -1,17 +1,17 @@
 Source: cdm-flowparser
+Maintainer: Sergey Satskiy <sergey.satskiy@gmail.com>
+Section: python
 Priority: optional
-Maintainer: Sergey Satsjiy <sergey.satskiy@gmail.com>
-Build-Depends: python-all-dev (>= 2.6.6-3), debhelper (>= 7)
+Build-Depends: dh-python, python-all-dev (>= 2.6.6-3), debhelper (>= 7)
 Standards-Version: 3.9.5
-Section: libs
 
 Package: cdm-flowparser
-Section: libs
 Architecture: any
 Depends: ${misc:Depends}, ${python:Depends}, ${shlibs:Depends}
 Description: Provides hierarchical representation of the code in as fragments.
- cdm-flowparser takes a file with a python code (or a character buffer), parses it and
- provides back a hierarchical representation of the code in terms of fragments.
+ cdm-flowparser takes a file with a python code (or a character buffer), parses
+ it and provides back a hierarchical representation of the code in terms of
+ fragments.
  Each fragment describes a portion of the input content:
  a start point (line, column and absolute position) plus an end point
  (line, column and absolute position).
