@@ -31,8 +31,8 @@
 #define CML_VERSION_AS_STRING STR(CML_VERSION)
 
 
-#ifndef CDM_CF_PARSER_VERION
-#define CDM_CF_PARSER_VERION "trunk"
+#ifndef CDM_CF_PARSER_VERSION
+#error "You must specify version"
 #endif
 
 #endif

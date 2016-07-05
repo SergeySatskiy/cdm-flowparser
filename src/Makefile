@@ -25,14 +25,14 @@
 
 .PHONY: all clean check
 
-VERSION=trunk
+VERSION=${CDM_PROJECT_BUILD_VERSION:-trunk}
 
 PYCXX_DIR=../thirdparty/pycxx
 PYCXX_INCLUDE=-I${PYCXX_DIR} -I${PYCXX_DIR}/Src
 PYTHON_INCLUDE=$(shell python -c 'import distutils.sysconfig; print distutils.sysconfig.get_python_inc()')
 INCLUDE=${PYCXX_INCLUDE} -I${PYTHON_INCLUDE}
 
-VERSION_DEFINES=-DCDM_CF_PARSER_VERION=\"${VERSION}\"
+VERSION_DEFINES=-DCDM_CF_PARSER_VERSION=\"${VERSION}\"
 FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES}
 
 PYCXX_OBJ_FILES=${PYCXX_DIR}/Src/cxxsupport.o ${PYCXX_DIR}/Src/cxx_extensions.o \
@@ -44,7 +44,7 @@ CDM_INC_FILES=cflowmodule.hpp cflowfragments.hpp cflowutils.hpp cflowparser.hpp 
 
 
 all: $(CDM_SRC_FILES) $(CDM_INC_FILES) $(PYCXX_SRC_FILES)
-	cd .. && python setup.py build_ext --inplace
+	cd .. && CDM_PROJECT_BUILD_VERSION=$(CDM_PROJECT_BUILD_VERSION) python setup.py build_ext --inplace
 	g++ ${FLAGS} -o tree  tree.cpp -I ${PYTHON_INCLUDE} -L/opt/python-2.7/lib/ -lpython2.7
 	g++ -o comments comments.cpp cflowcomments.cpp
 
@@ -55,5 +55,5 @@ check:
 	PYTHONPATH=../:${PYTHONPATH} ../tests/ut.py
 
 localinstall:
-	cd .. && python setup.py install --user
+	cd .. && CDM_PROJECT_BUILD_VERSION=$(CDM_PROJECT_BUILD_VERSION) python setup.py install --user
 

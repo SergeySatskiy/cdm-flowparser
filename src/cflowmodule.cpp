@@ -150,7 +150,7 @@ CDMControlFlowModule::CDMControlFlowModule() :
 
     // Constants visible from the module
     Py::Dict        d( moduleDictionary() );
-    d[ "VERSION" ]                  = Py::String( CDM_CF_PARSER_VERION );
+    d[ "VERSION" ]                  = Py::String( CDM_CF_PARSER_VERSION );
     d[ "CML_VERSION" ]              = Py::String( CML_VERSION_AS_STRING );
 
     d[ "UNDEFINED_FRAGMENT" ]       = Py::Int( UNDEFINED_FRAGMENT );

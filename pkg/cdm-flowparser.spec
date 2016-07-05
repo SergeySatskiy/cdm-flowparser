@@ -34,7 +34,7 @@ Python code as the user types it. Basically a pause in typing is detected and th
 make
 
 %install
-python setup.py install --root=${RPM_BUILD_ROOT} --record=INSTALLED_FILES
+CDM_PROJECT_BUILD_VERSION=${version} python setup.py install --root=${RPM_BUILD_ROOT} --record=INSTALLED_FILES
 
 %check
 make check
