@@ -65,6 +65,7 @@ setup( name = 'cdmcfparser',
                                   extra_compile_args = [ '-Wno-unused', '-fomit-frame-pointer',
                                                          '-DCDM_CF_PARSER_VERSION="' + version + '"',
                                                          '-ffast-math',
-                                                         '-O2' ],
+                                                         '-O2',
+                                                         '-DPYCXX_PYTHON_2TO3' ],
                                 ) ] )
 
