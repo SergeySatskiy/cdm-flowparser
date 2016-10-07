@@ -22,6 +22,8 @@
 
 " Unit tests for the python control flow parser "
 
+from __future__ import print_function
+
 import unittest
 import os.path
 import sys
@@ -48,7 +50,7 @@ def formatFlow( s ):
         return False
 
     maxIndex = len( s ) - 1
-    for index in xrange( len( s ) ):
+    for index in range( len( s ) ):
         sym = s[ index ]
         if sym == "\n":
             lastShift = shifts[ -1 ]
@@ -90,11 +92,11 @@ def files_equal( name1, name2 ):
     " Compares two files. Returns True if their content matches "
 
     if not os.path.exists( name1 ):
-        print >> sys.stderr, "Cannot open " + name1
+        print( "Cannot open " + name1, file = sys.stderr )
         return False
 
     if not os.path.exists( name2 ):
-        print >> sys.stderr, "Cannot open " + name2
+        print( "Cannot open " + name2, file = sys.stderr )
         return False
 
     file1 = open( name1 )
@@ -425,7 +427,7 @@ class CDMControlFlowParserTest( unittest.TestCase ):
 
 # Run the unit tests
 if __name__ == '__main__':
-    print "Testing control flow parser version: " + VERSION
-    print "Module location: " + cdmcf.__file__
+    print( "Testing control flow parser version: " + VERSION )
+    print( "Module location: " + cdmcf.__file__ )
     unittest.main()
 
