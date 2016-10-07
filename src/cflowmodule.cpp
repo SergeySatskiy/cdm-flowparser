@@ -433,6 +433,7 @@ Py::Object  CDMControlFlowModule::createControlFlow( const Py::Tuple &  args )
 
 static CDMControlFlowModule *  CDMControlFlow;
 
+#if PY_MAJOR_VERSION == 2
 extern "C" void initcdmcf()
 {
     CDMControlFlow = new CDMControlFlowModule;
@@ -443,5 +444,19 @@ extern "C" void initcdmcf_d()
 {
     initcdmcf();
 }
+#else
+extern "C" PyObject *  PyInit_cdmcf()
+{
+    CDMControlFlow = new CDMControlFlowModule;
+    return CDMControlFlow->module().ptr();
+}
+
+// symbol required for the debug version
+extern "C" PyObject *  PyInit_cdmcf_d()
+{
+    return PyInit_cdmcf();
+}
+
+#endif
 
 
