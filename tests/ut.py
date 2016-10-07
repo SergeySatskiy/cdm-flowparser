@@ -194,13 +194,13 @@ class CDMControlFlowParserTest( unittest.TestCase ):
     def test_cml2( self ):
         " Test cml 2 "
         self.meat( self.dir + "cml2.py",
-                   "error collecting cml with cml+" )
+                   "error collecting cml with cml+ #2" )
         return
 
     def test_cml3( self ):
         " Test cml 3 "
         self.meat( self.dir + "cml3.py",
-                   "error collecting cml with cml+" )
+                   "error collecting cml with cml+ #3" )
         return
 
     def test_cml4( self ):
