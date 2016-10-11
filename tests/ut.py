@@ -124,14 +124,18 @@ class CDMControlFlowParserTest( unittest.TestCase ):
         " The test process meat "
 
         controlFlow = getControlFlowFromFile( pythonFile )
-        self.failUnless( controlFlow.isOK == expectedOK )
+        if controlFlow.isOK != expectedOK:
+            self.fail( "Error parsing the file " + pythonFile +
+                       ". Option: directly from a file." )
 
         f = open( pythonFile )
         content = f.read()
         f.close()
 
         controlFlow = getControlFlowFromMemory( content )
-        self.failUnless( controlFlow.isOK == expectedOK )
+        if controlFlow.isOK != expectedOK:
+            self.fail( "Error parsing the file " + pythonFile +
+                       ". Option: from memory." )
 
         outFileName = pythonFile.replace( ".py", ".out" )
         outFile = open( outFileName, "w" )
@@ -139,8 +143,23 @@ class CDMControlFlowParserTest( unittest.TestCase ):
         outFile.close()
 
         okFileName = pythonFile.replace( ".py", ".ok" )
-        self.failUnless( files_equal( outFileName, okFileName ),
-                         errorMsg )
+        if files_equal( outFileName, okFileName ):
+            return
+
+        # Python 3 may serialize dictionary items in different order depending
+        # on a particular run. This causes troubles with .ok file which
+        # can have only one order. This is a quick and dirty workaround.
+        index = 1
+        while True:
+            okFileNameOption = okFileName + str( index )
+            if not os.path.exists( okFileNameOption ):
+                break       # Bad: no option matched
+            if files_equal( outFileName, okFileNameOption ):
+                return      # Good: matched
+
+            index += 1
+
+        self.fail( errorMsg )
         return
 
     def test_empty( self ):
@@ -369,7 +388,9 @@ class CDMControlFlowParserTest( unittest.TestCase ):
 
         pythonFile = self.dir + "errors.py"
         info = getControlFlowFromFile( pythonFile )
-        self.failUnless( info.isOK != True )
+        if info.isOK == True:
+            self.fail( "Expected parsing error for file " + pythonFile +
+                       ". Option: directly from file." )
 
         outFileName = pythonFile.replace( ".py", ".out" )
         outFile = open( outFileName, "w" )
@@ -377,8 +398,8 @@ class CDMControlFlowParserTest( unittest.TestCase ):
         outFile.close()
 
         okFileName = pythonFile.replace( ".py", ".ok" )
-        self.failUnless( files_equal( outFileName, okFileName ),
-                         "errors test failed" )
+        if not files_equal( outFileName, okFileName ):
+            self.fail( "errors test failed" )
         return
 
     def test_wrong_indent( self ):
@@ -386,7 +407,9 @@ class CDMControlFlowParserTest( unittest.TestCase ):
 
         pythonFile = self.dir + "wrong_indent.py"
         info = getControlFlowFromFile( pythonFile )
-        self.failUnless( info.isOK != True )
+        if info.isOK == True:
+            self.fail( "Expected parsing error for file " + pythonFile +
+                       ". Option: directly from file." )
 
         outFileName = pythonFile.replace( ".py", ".out" )
         outFile = open( outFileName, "w" )
@@ -394,8 +417,8 @@ class CDMControlFlowParserTest( unittest.TestCase ):
         outFile.close()
 
         okFileName = pythonFile.replace( ".py", ".ok" )
-        self.failUnless( files_equal( outFileName, okFileName ),
-                         "wrong indent test failed" )
+        if not files_equal( outFileName, okFileName ):
+            self.fail( "wrong indent test failed" )
         return
 
     def test_one_comment( self ):
