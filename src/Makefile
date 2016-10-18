@@ -27,14 +27,15 @@
 
 VERSION=${CDM_PROJECT_BUILD_VERSION:-trunk}
 
+PYTHON_INCLUDE=$(shell python-config --includes)
+PYTHON_LIBS=$(shell python-config --ldflags)
+PYTHON_LIBS_PATH=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("LIBDIR"))')
 PYCXX_DIR=../thirdparty/pycxx
 PYCXX_INCLUDE=-I${PYCXX_DIR} -I${PYCXX_DIR}/Src
-PYTHON_INCLUDE=$(shell python-config --includes)
 INCLUDE=${PYCXX_INCLUDE} ${PYTHON_INCLUDE}
-PYTHON_LIBS=$(shell python-config --libs)
 
 VERSION_DEFINES=-DCDM_CF_PARSER_VERSION=\"${VERSION}\"
-FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES}
+FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES} -Wl,-rpath=${PYTHON_LIBS_PATH}
 
 PYCXX_OBJ_FILES=${PYCXX_DIR}/Src/cxxsupport.o ${PYCXX_DIR}/Src/cxx_extensions.o \
                 ${PYCXX_DIR}/Src/IndirectPythonInterface.o ${PYCXX_DIR}/Src/cxxextensions.o
@@ -46,7 +47,7 @@ CDM_INC_FILES=cflowmodule.hpp cflowfragments.hpp cflowutils.hpp cflowparser.hpp 
 
 all: $(CDM_SRC_FILES) $(CDM_INC_FILES) $(PYCXX_SRC_FILES)
 	cd .. && CDM_PROJECT_BUILD_VERSION=$(CDM_PROJECT_BUILD_VERSION) python setup.py build_ext --inplace
-	g++ ${FLAGS} -o tree  tree.cpp ${PYTHON_INCLUDE} ${PYTHON_LIBS}
+	g++ ${FLAGS} -o tree  tree.cpp ${PYTHON_INCLUDE} -L${PYTHON_LIBS_PATH} ${PYTHON_LIBS}
 	g++ -o comments comments.cpp cflowcomments.cpp
 
 clean:
