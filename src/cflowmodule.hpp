@@ -43,6 +43,8 @@ class CDMControlFlowModule : public Py::ExtensionModule< CDMControlFlowModule >
         Py::Object  createDocstring( const Py::Tuple &  args );
         Py::Object  createDecorator( const Py::Tuple &  args );
         Py::Object  createCodeBlock( const Py::Tuple &  args );
+        Py::Object  createAnnotation( const Py::Tuple &  args );
+        Py::Object  createArgument( const Py::Tuple &  args );
         Py::Object  createFunction( const Py::Tuple &  args );
         Py::Object  createClass( const Py::Tuple &  args );
         Py::Object  createBreak( const Py::Tuple &  args );

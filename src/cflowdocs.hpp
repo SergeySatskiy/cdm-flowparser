@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014-2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id$
  *
  * Python extension module - various documentation strings
  */
@@ -70,6 +68,23 @@
 // CodeBlock()
 #define CREATE_CODEBLOCK_DOC \
 "Creates the CodeBlock class instance"
+
+// Annotation
+#define CREATE_ANNOTATION_DOC \
+"Creates the Annotation class instance"
+
+// Annotation::getDisplayValue()
+#define ANNOTATION_GETDISPLAYVALUE_DOC \
+"Provides the annotation"
+
+// Argument
+#define CREATE_ARGUMENT_DOC \
+"Creates the Argument class instance"
+
+// Argument::getDisplayValue()
+#define ARGUMENT_GETDISPLAYVALUE_DOC \
+"Provides the argument"
+
 
 // Function()
 #define CREATE_FUNCTION_DOC \
@@ -247,6 +262,14 @@
 // CodeBlock::getDisplayValue()
 #define CODEBLOCK_GETDISPLAYVALUE_DOC \
 "Provides the code block without trailing spaces and comments"
+
+// Annotation class docstring
+#define ANNOTATION_DOC \
+"Represents a single annotation for an argument or a return value"
+
+// Argument class docstring
+#define ARGUMENT_DOC \
+"Represents a single argument"
 
 // Function class docstring
 #define FUNCTION_DOC \

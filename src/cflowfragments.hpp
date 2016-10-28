@@ -77,6 +77,8 @@ class FragmentBase
                             const Py::Object &  val );
 
         std::string as_string( void ) const;
+        std::string alignBlock( const std::string &  content,
+                                FragmentBase *  firstFragment );
 
     public:
         Py::Object  getLineRange( void );
@@ -312,6 +314,48 @@ class CodeBlock : public FragmentBase,
 };
 
 
+class Annotation : public FragmentBase,
+                   public Py::PythonExtension< Annotation >
+{
+    public:
+        Annotation();
+        virtual ~Annotation();
+
+        static void initType( void );
+        Py::Object getattr( const char *  attrName );
+        Py::Object repr( void );
+        virtual int setattr( const char *        attrName,
+                             const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
+
+    public:
+        Py::Object      separator;      // Fragment for the ':' or '->'
+        Py::Object      text;           // Fragment for the annotation
+};
+
+
+class Argument : public FragmentBase,
+                 public Py::PythonExtension< Argument >
+{
+    public:
+        Argument();
+        virtual ~Argument();
+
+        static void initType( void );
+        Py::Object getattr( const char *  attrName );
+        Py::Object repr( void );
+        virtual int setattr( const char *        attrName,
+                             const Py::Object &  val );
+        Py::Object getDisplayValue( const Py::Tuple &  args );
+
+    public:
+        Py::Object      name;           // Fragment for the name
+        Py::Object      annotation;     // Annotation instance
+        Py::Object      separator;      // Fragment for '='
+        Py::Object      defaultValue;   // Fragment for the default value
+};
+
+
 class Function : public FragmentBase,
                  public FragmentWithComments,
                  public Py::PythonExtension< Function >
@@ -329,9 +373,13 @@ class Function : public FragmentBase,
 
     public:
         Py::List        decors;         // Decorator instances
+        Py::Object      asyncKeyword;   // Fragment for the 'async' keyword
+        Py::Object      defKeyword;     // Fragment for the 'def' keyword
         Py::Object      name;           // Fragment for the function name
         Py::Object      arguments;      // Fragment for the function arguments
                                         // starting from '(', ending with ')'
+        Py::List        argList;        // Argument instances
+        Py::Object      annotation;     // Annotation Instance
         Py::Object      docstring;      // None or Docstring instance
         Py::List        nsuite;
 };

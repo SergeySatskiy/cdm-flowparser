@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014-2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id$
  *
  * Python extension module
  */
@@ -43,6 +41,8 @@ CDMControlFlowModule::CDMControlFlowModule() :
     Decorator::initType();
     CodeBlock::initType();
 
+    Annotation::initType();
+    Argument::initType();
     Function::initType();
     Class::initType();
     Break::initType();
@@ -85,6 +85,12 @@ CDMControlFlowModule::CDMControlFlowModule() :
     add_varargs_method( "CodeBlock",
                         &CDMControlFlowModule::createCodeBlock,
                         CREATE_CODEBLOCK_DOC );
+    add_varargs_method( "Annotation",
+                        &CDMControlFlowModule::createAnnotation,
+                        CREATE_ANNOTATION_DOC );
+    add_varargs_method( "Argument",
+                        &CDMControlFlowModule::createArgument,
+                        CREATE_ARGUMENT_DOC );
     add_varargs_method( "Function",
                         &CDMControlFlowModule::createFunction,
                         CREATE_FUNCTION_DOC );
@@ -161,6 +167,8 @@ CDMControlFlowModule::CDMControlFlowModule() :
     d[ "DOCSTRING_FRAGMENT" ]       = Py::Int( DOCSTRING_FRAGMENT );
     d[ "DECORATOR_FRAGMENT" ]       = Py::Int( DECORATOR_FRAGMENT );
     d[ "CODEBLOCK_FRAGMENT" ]       = Py::Int( CODEBLOCK_FRAGMENT );
+    d[ "ANNOTATION_FRAGMENT" ]      = Py::Int( ANNOTATION_FRAGMENT );
+    d[ "ARGUMENT_FRAGMENT" ]        = Py::Int( ARGUMENT_FRAGMENT );
     d[ "FUNCTION_FRAGMENT" ]        = Py::Int( FUNCTION_FRAGMENT );
     d[ "CLASS_FRAGMENT" ]           = Py::Int( CLASS_FRAGMENT );
     d[ "BREAK_FRAGMENT" ]           = Py::Int( BREAK_FRAGMENT );
@@ -342,6 +350,16 @@ Py::Object  CDMControlFlowModule::createDecorator( const Py::Tuple &  args )
 Py::Object  CDMControlFlowModule::createCodeBlock( const Py::Tuple &  args )
 {
     return Py::asObject( new CodeBlock() );
+}
+
+Py::Object  CDMControlFlowModule::createAnnotation( const Py::Tuple &  args )
+{
+    return Py::asObject( new Annotation() );
+}
+
+Py::Object  CDMControlFlowModule::createArgument( const Py::Tuple &  args )
+{
+    return Py::asObject( new Argument() );
 }
 
 Py::Object  CDMControlFlowModule::createFunction( const Py::Tuple &  args )

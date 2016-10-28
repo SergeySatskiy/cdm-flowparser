@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # codimension - graphics python two-way code editor and analyzer
-# Copyright (C) 2010  Sergey Satskiy <sergey.satskiy@gmail.com>
+# Copyright (C) 2010-2016  Sergey Satskiy <sergey.satskiy@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -16,8 +16,6 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# $Id: run.py 2397 2015-03-18 19:03:10Z sergey.satskiy@gmail.com $
 #
 
 " Convinience parser launcher "
@@ -43,7 +41,7 @@ def formatFlow( s ):
         return False
 
     maxIndex = len( s ) - 1
-    for index in xrange( len( s ) ):
+    for index in range( len( s ) ):
         sym = s[ index ]
         if sym == "\n":
             lastShift = shifts[ -1 ]
@@ -87,13 +85,13 @@ import cdmcf
 from cdmcf import getControlFlowFromFile, VERSION
 
 if len( sys.argv ) != 2:
-    print >> sys.stderr, "Single file name is expected"
+    print( "Single file name is expected", file = sys.stderr )
     sys.exit( 1 )
 
-print "Running control flow parser version: " + VERSION
-print "Module location: " + cdmcf.__file__
+print( "Running control flow parser version: " + VERSION )
+print( "Module location: " + cdmcf.__file__ )
 
 controlFlow = getControlFlowFromFile( sys.argv[ 1 ] )
-print formatFlow( str( controlFlow ) )
+print( formatFlow( str( controlFlow ) ) )
 sys.exit( 0 )
 
