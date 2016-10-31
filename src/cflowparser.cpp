@@ -1891,6 +1891,12 @@ processFuncDefinition( Context *                    context,
     updateEnd( body, colonNode, context->lineShifts );
     func->body = Py::asObject( body );
 
+    Fragment *      def( new Fragment );
+    def->parent = func;
+    updateBegin( def, defNode, context->lineShifts );
+    updateEnd( def, defNode, context->lineShifts );
+    func->defKeyword = Py::asObject( def );
+
     Fragment *      name( new Fragment );
     name->parent = func;
     updateBegin( name, nameNode, context->lineShifts );

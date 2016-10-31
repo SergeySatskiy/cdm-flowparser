@@ -16,6 +16,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [0:2] (1,1) (1,3)
          Name: [4:5] (1,5) (1,6)
          Arguments: [6:7] (1,7) (1,8)
          Docstring: None
@@ -34,6 +36,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [15:17] (2,1) (2,3)
          Name: [19:20] (2,5) (2,6)
          Arguments: [21:23] (2,7) (2,9)
          Docstring: None
@@ -52,6 +56,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [31:33] (3,1) (3,3)
          Name: [35:36] (3,5) (3,6)
          Arguments: [37:41] (3,7) (3,11)
          Docstring: None
@@ -70,6 +76,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [49:51] (4,1) (4,3)
          Name: [53:54] (4,5) (4,6)
          Arguments: [55:63] (4,7) (4,15)
          Docstring: None
@@ -88,6 +96,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [71:73] (5,1) (5,3)
          Name: [75:76] (5,5) (5,6)
          Arguments: [77:88] (5,7) (5,18)
          Docstring: None
@@ -106,6 +116,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [96:98] (6,1) (6,3)
          Name: [100:101] (6,5) (6,6)
          Arguments: [102:110] (6,7) (6,15)
          Docstring: None
@@ -124,6 +136,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [118:120] (7,1) (7,3)
          Name: [122:123] (7,5) (7,6)
          Arguments: [124:135] (7,7) (7,18)
          Docstring: None
@@ -142,6 +156,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [143:145] (8,1) (8,3)
          Name: [147:148] (8,5) (8,6)
          Arguments: [149:167] (8,7) (8,25)
          Docstring: None
@@ -160,6 +176,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [175:177] (9,1) (9,3)
          Name: [179:180] (9,5) (9,6)
          Arguments: [181:192] (9,7) (9,18)
          Docstring: None
@@ -178,6 +196,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [200:202] (10,1) (10,3)
          Name: [204:206] (10,5) (10,7)
          Arguments: [207:221] (10,8) (10,22)
          Docstring: None
@@ -196,6 +216,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [229:231] (11,1) (11,3)
          Name: [233:235] (11,5) (11,7)
          Arguments: [236:257] (11,8) (11,29)
          Docstring: None
@@ -214,6 +236,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [265:267] (12,1) (12,3)
          Name: [269:271] (12,5) (12,7)
          Arguments: [272:296] (12,8) (12,32)
          Docstring: None
@@ -232,6 +256,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [304:306] (13,1) (13,3)
          Name: [308:310] (13,5) (13,7)
          Arguments: [311:331] (13,8) (13,28)
          Docstring: None
@@ -250,6 +276,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [339:341] (14,1) (14,3)
          Name: [343:345] (14,5) (14,7)
          Arguments: [346:373] (14,8) (14,35)
          Docstring: None
@@ -268,6 +296,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [381:383] (15,1) (15,3)
          Name: [385:387] (15,5) (15,7)
          Arguments: [388:412] (15,8) (15,32)
          Docstring: None
@@ -286,6 +316,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [420:422] (16,1) (16,3)
          Name: [424:426] (16,5) (16,7)
          Arguments: [427:444] (16,8) (16,25)
          Docstring: None
@@ -304,6 +336,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [452:454] (17,1) (17,3)
          Name: [456:458] (17,5) (17,7)
          Arguments: [459:473] (17,8) (17,22)
          Docstring: None
@@ -322,6 +356,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [481:483] (18,1) (18,3)
          Name: [485:487] (18,5) (18,7)
          Arguments: [488:518] (18,8) (18,38)
          Docstring: None
@@ -340,6 +376,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [526:528] (19,1) (19,3)
          Name: [530:532] (19,5) (19,7)
          Arguments: [533:564] (19,8) (20,22)
          Docstring: None

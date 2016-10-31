@@ -47,6 +47,8 @@
                            RecordType: C
                            Properties: {'b': '456'}
                           >
+         Async: None
+         Def: [62:64] (7,1) (7,3)
          Name: [66:66] (7,5) (7,5)
          Arguments: [67:168] (7,6) (11,6)
          Docstring: None
@@ -65,6 +67,8 @@
          SideComment: None
          LeadingCMLComments: n/a
          SideCMLComments: n/a
+         Async: None
+         Def: [233:235] (15,1) (15,3)
          Name: [237:237] (15,5) (15,5)
          Arguments: [238:239] (15,6) (15,7)
          Docstring: None
@@ -89,6 +93,8 @@
                                    RecordType: C
                                    Properties: {}
                                   >
+                 Async: None
+                 Def: [260:262] (17,5) (17,7)
                  Name: [264:264] (17,9) (17,9)
                  Arguments: [265:266] (17,10) (17,11)
                  Docstring: None

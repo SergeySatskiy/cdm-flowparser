@@ -1996,6 +1996,8 @@ Py::Object  Function::repr( void )
 {
     return Py::String( "<Function " + FragmentBase::as_string() +
                        "\n" + FragmentWithComments::as_string() +
+                       "\n" + representFragmentPart( asyncKeyword, "Async" ) +
+                       "\n" + representFragmentPart( defKeyword, "Def" ) +
                        "\n" + representFragmentPart( name, "Name" ) +
                        "\n" + representFragmentPart( arguments, "Arguments" ) +
                        "\n" + representPart( docstring, "Docstring" ) +
