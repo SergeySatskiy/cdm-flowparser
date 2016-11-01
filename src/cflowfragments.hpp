@@ -370,6 +370,7 @@ class Function : public FragmentBase,
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
         Py::Object getDisplayValue( const Py::Tuple &  args );
+        Py::Object isAsync( void );
 
     public:
         Py::List        decors;         // Decorator instances

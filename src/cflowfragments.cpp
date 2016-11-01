@@ -1936,6 +1936,8 @@ void Function::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "isAsync", &Function::isAsync,
+                       FUNCTION_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2089,6 +2091,14 @@ Py::Object Function::getDisplayValue( const Py::Tuple &  args )
     // The content may be shifted and may have side comments.
     // The common shift should be shaved as well the comments
     return Py::String( alignBlockAndStripSideComments( content, & f ) );
+}
+
+
+Py::Object  Function::isAsync( void )
+{
+    if ( asyncKeyword.isNone() )
+        return Py::Boolean( false );
+    return Py::Boolean( true );
 }
 
 

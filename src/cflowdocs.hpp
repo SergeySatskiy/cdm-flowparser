@@ -94,6 +94,10 @@
 #define FUNCTION_GETDISPLAYVALUE_DOC \
 "Provides the function without trailing spaces and comments"
 
+// Function::isAsync()
+#define FUNCTION_ISASYNC_DOC \
+"True if the function has the async modifier"
+
 // Class()
 #define CREATE_CLASS_DOC \
 "Creates the Class class instance"
