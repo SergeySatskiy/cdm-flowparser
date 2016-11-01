@@ -1896,6 +1896,96 @@ processAnnotation( Context *    context,
 }
 
 
+static int
+processFunctionArgument( Context *      context,
+                         Function *     func,
+                         node *         arguments,
+                         int            index)
+{
+    // One of three cases here:
+    // - regular argument (name [+ annot] [+default])
+    // - STAR (* name [+ annot])
+    // - DOUBLESTAR (* name [ + annot])
+
+    node *      tfpdefNode( & arguments->n_child[ index ] );
+    node *      argBegin( tfpdefNode );
+    if ( tfpdefNode->n_type == STAR || tfpdefNode->n_type == DOUBLESTAR )
+    {
+        ++index;
+        tfpdefNode = & arguments->n_child[ index ];
+    }
+
+    Argument *      arg( new Argument );
+    arg->parent = func;
+
+    // The NAME node is always the first child of the tfpdef node
+    node *      nameNode( & tfpdefNode->n_child[ 0 ] );
+    Fragment *  name( new Fragment );
+    name->parent = arg;
+    updateBegin( name, argBegin, context->lineShifts );
+    updateEnd( name, nameNode, context->lineShifts );
+    arg->name = Py::asObject( name );
+
+    arg->updateEnd( name );
+    arg->updateBegin( name );
+
+    // See if there is an annotation
+    node *      colonNode( findChildOfType( tfpdefNode, COLON ) );
+    if ( colonNode != NULL )
+    {
+        // That's the annotation
+        node *      testNode ( findChildOfType( tfpdefNode, test ) );
+        if ( testNode != NULL )
+        {
+            Annotation *        ann = processAnnotation( context,
+                                                         colonNode, testNode );
+            if ( ann != NULL )
+            {
+                ann->parent = arg;
+                arg->annotation = Py::asObject( ann );
+                arg->updateEnd( ann );
+            }
+        }
+    }
+
+    // See for the default value
+    ++index;
+    if ( index < arguments->n_nchildren )
+    {
+        node *      child( & arguments->n_child[ index ] );
+        if ( child->n_type == EQUAL )
+        {
+            // The default value is here
+            ++index;
+            node *      testNode( & arguments->n_child[ index ] );
+            if ( testNode->n_type == test )
+            {
+                Fragment *      sep( new Fragment );
+                Fragment *      defValue( new Fragment );
+                node *          lastPart( findLastPart( testNode ) );
+
+                sep->parent = arg;
+                updateBegin( sep, child, context->lineShifts );
+                updateEnd( sep, child, context->lineShifts );
+                arg->separator = Py::asObject( sep );
+
+                defValue->parent = arg;
+                updateBegin( defValue, testNode, context->lineShifts );
+                updateEnd( defValue, lastPart, context->lineShifts );
+                arg->defaultValue = Py::asObject( defValue );
+
+                arg->updateEnd( defValue );
+
+                ++index;
+            }
+        }
+    }
+
+    func->argList.append( Py::asObject( arg ) );
+    return index;
+}
+
+
 static FragmentBase *
 processFuncDefinition( Context *                    context,
                        node *                       tree,
@@ -1957,6 +2047,27 @@ processFuncDefinition( Context *                    context,
     updateBegin( args, lparNode, context->lineShifts );
     updateEnd( args, rparNode, context->lineShifts );
     func->arguments = Py::asObject( args );
+
+    node *      argsNode = findChildOfType( params, typedargslist );
+    if ( argsNode != NULL )
+    {
+        /* The function has arguments */
+        int         k = 0;
+        node *      child;
+        while ( k < argsNode->n_nchildren )
+        {
+            child = & ( argsNode->n_child[ k ] );
+            if ( child->n_type == tfpdef ||
+                 child->n_type == STAR ||
+                 child->n_type == DOUBLESTAR )
+            {
+                // It adds an argument to the func->argList
+                k = processFunctionArgument( context, func, argsNode, k );
+            }
+            else
+                ++k;
+        }
+    }
 
     func->updateEnd( body );
     func->updateBegin( body );

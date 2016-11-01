@@ -28,6 +28,7 @@
          Def: [64:66] (7,1) (7,3)
          Name: [68:68] (7,5) (7,5)
          Arguments: [69:70] (7,6) (7,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [77:111] (8,5) (8,39)
                      Body: [77:111] (8,5) (8,39)
@@ -57,6 +58,7 @@
          Def: [123:125] (11,1) (11,3)
          Name: [127:127] (11,5) (11,5)
          Arguments: [128:129] (11,6) (11,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [136:170] (12,5) (12,39)
                      Body: [136:170] (12,5) (12,39)
@@ -86,6 +88,7 @@
          Def: [182:184] (15,1) (15,3)
          Name: [186:186] (15,5) (15,5)
          Arguments: [187:188] (15,6) (15,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [195:232] (16,5) (16,42)
                      Body: [195:232] (16,5) (16,42)
@@ -115,6 +118,7 @@
          Def: [244:246] (19,1) (19,3)
          Name: [248:248] (19,5) (19,5)
          Arguments: [249:250] (19,6) (19,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [257:294] (20,5) (20,42)
                      Body: [257:294] (20,5) (20,42)
@@ -144,6 +148,7 @@
          Def: [306:308] (23,1) (23,3)
          Name: [310:310] (23,5) (23,5)
          Arguments: [311:312] (23,6) (23,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [319:361] (24,5) (27,7)
                      Body: [319:361] (24,5) (27,7)
@@ -173,6 +178,7 @@
          Def: [373:375] (30,1) (30,3)
          Name: [377:377] (30,5) (30,5)
          Arguments: [378:379] (30,6) (30,7)
+         ArgList: n/a
          Annotation: None
          Docstring: <Docstring [386:439] (31,5) (34,7)
                      Body: [386:439] (31,5) (34,7)
@@ -202,6 +208,7 @@
          Def: [451:453] (37,1) (37,3)
          Name: [455:455] (37,5) (37,5)
          Arguments: [456:457] (37,6) (37,7)
+         ArgList: n/a
          Annotation: None
          Docstring: None
          Decorators: n/a
@@ -233,6 +240,12 @@
                          Def: [544:546] (41,9) (41,11)
                          Name: [548:555] (41,13) (41,20)
                          Arguments: [556:563] (41,21) (41,28)
+                         ArgList: <Argument [558:561] (41,23) (41,26)
+                                   Name: [558:561] (41,23) (41,26)
+                                   Annotation: None
+                                   Separator: None
+                                   defaultValue: None
+                                  >
                          Annotation: None
                          Docstring: <Docstring [578:629] (42,13) (45,13)
                                      Body: [578:629] (42,13) (45,13)

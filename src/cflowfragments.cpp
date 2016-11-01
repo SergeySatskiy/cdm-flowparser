@@ -2000,6 +2000,7 @@ Py::Object  Function::repr( void )
                        "\n" + representFragmentPart( defKeyword, "Def" ) +
                        "\n" + representFragmentPart( name, "Name" ) +
                        "\n" + representFragmentPart( arguments, "Arguments" ) +
+                       "\n" + representList( argList, "ArgList" ) +
                        "\n" + representPart( annotation, "Annotation" ) +
                        "\n" + representPart( docstring, "Docstring" ) +
                        "\n" + representList( decors, "Decorators" ) +
