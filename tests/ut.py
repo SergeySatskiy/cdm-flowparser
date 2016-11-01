@@ -329,6 +329,12 @@ class CDMControlFlowParserTest( unittest.TestCase ):
                    "function comments test failed" )
         return
 
+    def test_function_annotations( self ):
+        " Test function annotations "
+        self.meat( self.dir + "func_annotations.py",
+                   "function annotations test failed" )
+        return
+
 #    def test_nested_func_definitions( self ):
 #        " Test nested functions definitions "
 #        self.meat( self.dir + "nested_funcs.py",

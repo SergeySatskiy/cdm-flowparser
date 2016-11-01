@@ -51,6 +51,7 @@
          Def: [62:64] (7,1) (7,3)
          Name: [66:66] (7,5) (7,5)
          Arguments: [67:168] (7,6) (11,6)
+         Annotation: None
          Docstring: None
          Decorators: n/a
          Suite: <CodeBlock [227:230] (13,5) (13,8)
@@ -71,6 +72,7 @@
          Def: [233:235] (15,1) (15,3)
          Name: [237:237] (15,5) (15,5)
          Arguments: [238:239] (15,6) (15,7)
+         Annotation: None
          Docstring: None
          Decorators: n/a
          Suite: <Function [246:339] (16,5) (20,12)
@@ -97,6 +99,7 @@
                  Def: [260:262] (17,5) (17,7)
                  Name: [264:264] (17,9) (17,9)
                  Arguments: [265:266] (17,10) (17,11)
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [336:339] (20,9) (20,12)

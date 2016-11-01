@@ -1866,6 +1866,36 @@ checkForDocstring( Context *  context, node *  tree )
 }
 
 
+static Annotation *
+processAnnotation( Context *    context,
+                   node *       separator,
+                   node *       annotation )
+{
+    if ( separator == NULL || annotation == NULL )
+        return NULL;
+
+    Annotation *    ann( new Annotation );
+
+    Fragment *      sep( new Fragment );
+    sep->parent = ann;
+    updateBegin( sep, separator, context->lineShifts );
+    updateEnd( sep, separator, context->lineShifts );
+    ann->separator = Py::asObject( sep );
+
+    Fragment *      text( new Fragment );
+    node *          lastPart( findLastPart( annotation ) );
+
+    text->parent = ann;
+    updateBegin( text, annotation, context->lineShifts );
+    updateEnd( text, lastPart, context->lineShifts );
+    ann->text = Py::asObject( text );
+
+    ann->updateEnd( text );
+    ann->updateBegin( sep );
+    return ann;
+}
+
+
 static FragmentBase *
 processFuncDefinition( Context *                    context,
                        node *                       tree,
@@ -1879,6 +1909,7 @@ processFuncDefinition( Context *                    context,
     node *      defNode = & ( tree->n_child[ 0 ] );
     node *      nameNode = & ( tree->n_child[ 1 ] );
     node *      colonNode = findChildOfType( tree, COLON );
+    node *      annotSeparator = findChildOfType( tree, RARROW );
 
     assert( colonNode != NULL );
 
@@ -1890,6 +1921,21 @@ processFuncDefinition( Context *                    context,
     updateBegin( body, defNode, context->lineShifts );
     updateEnd( body, colonNode, context->lineShifts );
     func->body = Py::asObject( body );
+
+    if ( annotSeparator != NULL )
+    {
+        node *      annotNode = findChildOfType( tree, test );
+        if ( annotNode != NULL )
+        {
+            Annotation *  ann = processAnnotation( context, annotSeparator,
+                                                   annotNode );
+            if ( ann != NULL )
+            {
+                ann->parent = func;
+                func->annotation = Py::asObject( ann );
+            }
+        }
+    }
 
     Fragment *      def( new Fragment );
     def->parent = func;

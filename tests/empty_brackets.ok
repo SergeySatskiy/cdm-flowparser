@@ -27,6 +27,7 @@
          Def: [22:24] (5,1) (5,3)
          Name: [26:26] (5,5) (5,5)
          Arguments: [27:28] (5,6) (5,7)
+         Annotation: None
          Docstring: None
          Decorators: n/a
          Suite: <Return [35:43] (6,5) (6,13)
@@ -48,6 +49,7 @@
          Def: [46:48] (8,1) (8,3)
          Name: [50:50] (8,5) (8,5)
          Arguments: [51:52] (8,6) (8,7)
+         Annotation: None
          Docstring: None
          Decorators: n/a
          Suite: <Return [59:67] (9,5) (9,13)
@@ -69,6 +71,7 @@
          Def: [70:72] (11,1) (11,3)
          Name: [74:74] (11,5) (11,5)
          Arguments: [75:76] (11,6) (11,7)
+         Annotation: None
          Docstring: None
          Decorators: n/a
          Suite: <Return [83:91] (12,5) (12,13)

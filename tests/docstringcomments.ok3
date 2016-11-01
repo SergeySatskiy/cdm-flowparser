@@ -28,7 +28,7 @@
                                          >
                                   Version: 1
                                   RecordType: C
-                                  Properties: {'bg': 'red', 'fg': 'yellow'}
+                                  Properties: {'fg': 'yellow', 'bg': 'red'}
                                  >
              SideCMLComments: <CMLComment [100:142] (10,17) (11,28)
                                Parts: <Fragment [100:113] (10,17) (10,30)
