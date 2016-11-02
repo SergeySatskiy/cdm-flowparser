@@ -1346,7 +1346,16 @@ processWith( Context *  context,
              node *  tree, FragmentBase *  parent,
              Py::List &  flow )
 {
+    assert( tree->n_type == with_stmt || tree->async_stmt );
+
+    node *      asyncNode = NULL;
+    if ( tree->n_type != with_stmt )
+    {
+        asyncNode = & ( tree->n_child[ 0 ] );
+        tree = & ( tree->n_child[ 1 ] );
+    }
     assert( tree->n_type == with_stmt );
+
 
     With *      w( new With );
     w->parent = parent;
@@ -1356,10 +1365,33 @@ processWith( Context *  context,
     node *          whithNode = findChildOfType( tree, NAME );
 
     body->parent = w;
-    updateBegin( body, whithNode, context->lineShifts );
+
+    if ( asyncNode != NULL )
+    {
+        Fragment *      async( new Fragment );
+        async->parent = w;
+        updateBegin( async, asyncNode, context->lineShifts );
+        updateEnd( async, asyncNode, context->lineShifts );
+        w->asyncKeyword = Py::asObject( async );
+
+        // Need to update the body begin too
+        updateBegin( body, asyncNode, context->lineShifts );
+    }
+    else
+    {
+        updateBegin( body, whithNode, context->lineShifts );
+    }
+
     updateEnd( body, colonNode, context->lineShifts );
     w->body = Py::asObject( body );
     w->updateBeginEnd( body );
+
+    // with keyword
+    Fragment *      withKeyword( new Fragment );
+    withKeyword->parent = w;
+    updateBegin( withKeyword, whithNode, context->lineShifts );
+    updateEnd( withKeyword, whithNode, context->lineShifts );
+    w->withKeyword = Py::asObject( withKeyword );
 
     // items
     node *      firstWithItem = findChildOfType( tree, with_item );
@@ -1399,7 +1431,16 @@ processFor( Context *  context,
             node *  tree, FragmentBase *  parent,
             Py::List &  flow )
 {
+    assert( tree->n_type == for_stmt || tree->async_stmt );
+
+    node *      asyncNode = NULL;
+    if ( tree->n_type != for_stmt )
+    {
+        asyncNode = & ( tree->n_child[ 0 ] );
+        tree = & ( tree->n_child[ 1 ] );
+    }
     assert( tree->n_type == for_stmt );
+
 
     For *       f( new For );
     f->parent = parent;
@@ -1409,10 +1450,33 @@ processFor( Context *  context,
     node *          forNode = findChildOfType( tree, NAME );
 
     body->parent = f;
-    updateBegin( body, forNode, context->lineShifts );
+
+    if ( asyncNode != NULL )
+    {
+        Fragment *      async( new Fragment );
+        async->parent = f;
+        updateBegin( async, asyncNode, context->lineShifts );
+        updateEnd( async, asyncNode, context->lineShifts );
+        f->asyncKeyword = Py::asObject( async );
+
+        // Need to update the body begin too
+        updateBegin( body, asyncNode, context->lineShifts );
+    }
+    else
+    {
+        updateBegin( body, forNode, context->lineShifts );
+    }
+
     updateEnd( body, colonNode, context->lineShifts );
     f->body = Py::asObject( body );
     f->updateBeginEnd( body );
+
+    // for keyword
+    Fragment *      forKeyword( new Fragment );
+    forKeyword->parent = f;
+    updateBegin( forKeyword, forNode, context->lineShifts );
+    updateEnd( forKeyword, forNode, context->lineShifts );
+    f->forKeyword = Py::asObject( forKeyword );
 
     // Iteration
     node *          exprlistNode = findChildOfType( tree, exprlist );
@@ -1993,8 +2057,18 @@ processFuncDefinition( Context *                    context,
                        Py::List &                   flow,
                        std::list<Decorator *> &     decors )
 {
-    assert( tree->n_type == funcdef );
+    assert( tree->n_type == funcdef || tree->n_type == async_funcdef ||
+            tree->n_type == async_stmt );
     assert( tree->n_nchildren > 1 );
+
+    node *      asyncNode = NULL;
+    if ( tree->n_type != funcdef )
+    {
+        asyncNode = & ( tree->n_child[ 0 ] );
+        tree = & ( tree->n_child[ 1 ] );
+    }
+    assert( tree->n_type == funcdef );
+
 
     node *      defNode = & ( tree->n_child[ 0 ] );
     node *      nameNode = & ( tree->n_child[ 1 ] );
@@ -2008,7 +2082,23 @@ processFuncDefinition( Context *                    context,
 
     Fragment *      body( new Fragment );
     body->parent = func;
-    updateBegin( body, defNode, context->lineShifts );
+
+    if ( asyncNode != NULL )
+    {
+        Fragment *      async( new Fragment );
+        async->parent = func;
+        updateBegin( async, asyncNode, context->lineShifts );
+        updateEnd( async, asyncNode, context->lineShifts );
+        func->asyncKeyword = Py::asObject( async );
+
+        // Need to update the body begin too
+        updateBegin( body, asyncNode, context->lineShifts );
+    }
+    else
+    {
+        updateBegin( body, defNode, context->lineShifts );
+    }
+
     updateEnd( body, colonNode, context->lineShifts );
     func->body = Py::asObject( body );
 
@@ -2519,6 +2609,29 @@ walk( Context *                    context,
                     }
                 }
                 continue;
+            case async_stmt:
+                {
+                    addCodeBlock( context, & codeBlock, flow, parent );
+                    node *      asyncStmtNode = & ( nodeToProcess->n_child[ 1 ] );
+                    if ( asyncStmtNode->n_type == funcdef )
+                    {
+                        std::list<Decorator *>      noDecors;
+                        lastAdded = processFuncDefinition( context, nodeToProcess,
+                                                           parent, flow,
+                                                           noDecors );
+                    }
+                    else if ( asyncStmtNode->n_type == with_stmt )
+                    {
+                        lastAdded = processWith( context, nodeToProcess,
+                                                 parent, flow );
+                    }
+                    else if ( asyncStmtNode->n_type == for_stmt )
+                    {
+                        lastAdded = processFor( context, nodeToProcess,
+                                                parent, flow );
+                    }
+                }
+                continue;
             case if_stmt:
                 addCodeBlock( context, & codeBlock, flow, parent );
                 lastAdded = processIf( context, nodeToProcess, parent, flow );
@@ -2588,6 +2701,14 @@ walk( Context *                    context,
                                                             classOrFuncNode,
                                                             parent, flow,
                                                             decors );
+                    }
+                    else if ( classOrFuncNode->n_type == async_funcdef )
+                    {
+                        addCodeBlock( context, & codeBlock, flow, parent );
+                        lastAdded = processFuncDefinition( context,
+                                                           classOrFuncNode,
+                                                           parent, flow,
+                                                           decors );
                     }
                 }
                 continue;

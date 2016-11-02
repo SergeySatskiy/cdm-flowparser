@@ -158,6 +158,10 @@
 #define CREATE_FOR_DOC \
 "Creates the For class instance"
 
+// For::isAsync()
+#define FOR_ISASYNC_DOC \
+"True if the for loop has the async modifier"
+
 // For::getDisplayValue()
 #define FOR_GETDISPLAYVALUE_DOC \
 "Provides the for iteration without trailing spaces and comments"
@@ -177,6 +181,10 @@
 // With()
 #define CREATE_WITH_DOC \
 "Creates the With class instance"
+
+// With::isAsync()
+#define WITH_ISASYNC_DOC \
+"True if the with statement has the async modifier"
 
 // Raise::getDisplayValue()
 #define WITH_GETDISPLAYVALUE_DOC \

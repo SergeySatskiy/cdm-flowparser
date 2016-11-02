@@ -2988,6 +2988,8 @@ Py::Object While::getDisplayValue( const Py::Tuple &  args )
 For::For()
 {
     kind = FOR_FRAGMENT;
+    asyncKeyword = Py::None();
+    forKeyword = Py::None();
     iteration = Py::None();
     elsePart = Py::None();
 }
@@ -3005,6 +3007,8 @@ void For::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "isAsync", &For::isAsync,
+                       FOR_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -3023,6 +3027,8 @@ Py::Object For::getattr( const char *  attrName )
         Py::List    members;
         FragmentBase::appendMembers( members );
         FragmentWithComments::appendMembers( members );
+        members.append( Py::String( "asyncKeyword" ) );
+        members.append( Py::String( "forKeyword" ) );
         members.append( Py::String( "iteration" ) );
         members.append( Py::String( "suite" ) );
         members.append( Py::String( "elsePart" ) );
@@ -3034,6 +3040,10 @@ Py::Object For::getattr( const char *  attrName )
         return retval;
     if ( FragmentWithComments::getAttribute( attrName, retval ) )
         return retval;
+    if ( strcmp( attrName, "asyncKeyword" ) == 0 )
+        return asyncKeyword;
+    if ( strcmp( attrName, "forKeyword" ) == 0 )
+        return forKeyword;
     if ( strcmp( attrName, "iteration" ) == 0 )
         return iteration;
     if ( strcmp( attrName, "suite" ) == 0 )
@@ -3047,6 +3057,8 @@ Py::Object  For::repr( void )
 {
     return Py::String( "<For " + FragmentBase::as_string() +
                        "\n" + FragmentWithComments::as_string() +
+                       "\n" + representFragmentPart( asyncKeyword, "Async" ) +
+                       "\n" + representFragmentPart( forKeyword, "For" ) +
                        "\n" + representFragmentPart( iteration, "Iteration" ) +
                        "\n" + representList( nsuite, "Suite" ) +
                        "\n" + representPart( elsePart, "ElsePart" ) +
@@ -3106,6 +3118,14 @@ Py::Object For::getDisplayValue( const Py::Tuple &  args )
     // The content may be shifted and may have side comments.
     // The common shift should be shaved as well the comments
     return Py::String( alignBlockAndStripSideComments( content, itFragment ) );
+}
+
+
+Py::Object  For::isAsync( void )
+{
+    if ( asyncKeyword.isNone() )
+        return Py::Boolean( false );
+    return Py::Boolean( true );
 }
 
 // --- End of For definition ---
@@ -3442,6 +3462,8 @@ int  If::setattr( const char *        attrName,
 With::With()
 {
     kind = WITH_FRAGMENT;
+    asyncKeyword = Py::None();
+    withKeyword = Py::None();
     items = Py::None();
 }
 
@@ -3458,6 +3480,8 @@ void With::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "isAsync", &With::isAsync,
+                       WITH_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -3476,6 +3500,8 @@ Py::Object With::getattr( const char *  attrName )
         Py::List    members;
         FragmentBase::appendMembers( members );
         FragmentWithComments::appendMembers( members );
+        members.append( Py::String( "asyncKeyword" ) );
+        members.append( Py::String( "withKeyword" ) );
         members.append( Py::String( "items" ) );
         members.append( Py::String( "suite" ) );
         return members;
@@ -3486,6 +3512,10 @@ Py::Object With::getattr( const char *  attrName )
         return retval;
     if ( FragmentWithComments::getAttribute( attrName, retval ) )
         return retval;
+    if ( strcmp( attrName, "asyncKeyword" ) == 0 )
+        return asyncKeyword;
+    if ( strcmp( attrName, "withKeyword" ) == 0 )
+        return withKeyword;
     if ( strcmp( attrName, "items" ) == 0 )
         return items;
     if ( strcmp( attrName, "suite" ) == 0 )
@@ -3497,6 +3527,8 @@ Py::Object  With::repr( void )
 {
     return Py::String( "<With " + FragmentBase::as_string() +
                        "\n" + FragmentWithComments::as_string() +
+                       "\n" + representFragmentPart( asyncKeyword, "Async" ) +
+                       "\n" + representFragmentPart( withKeyword, "With" ) +
                        "\n" + representFragmentPart( items, "Items" ) +
                        "\n" + representList( nsuite, "Suite" ) +
                        ">" );
@@ -3550,6 +3582,15 @@ Py::Object With::getDisplayValue( const Py::Tuple &  args )
     // The common shift should be shaved as well the comments
     return Py::String( alignBlockAndStripSideComments( content, itemsFragment ) );
 }
+
+
+Py::Object  With::isAsync( void )
+{
+    if ( asyncKeyword.isNone() )
+        return Py::Boolean( false );
+    return Py::Boolean( true );
+}
+
 
 // --- End of With definition ---
 

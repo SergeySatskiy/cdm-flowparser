@@ -567,8 +567,11 @@ class For : public FragmentBase,
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
         Py::Object getDisplayValue( const Py::Tuple &  args );
+        Py::Object isAsync( void );
 
     public:
+        Py::Object      asyncKeyword;   // Fragment for the 'async' keyword
+        Py::Object      forKeyword;     // Fragment for the 'for' keyword
         Py::Object      iteration;      // Fragment for the iteration
         Py::List        nsuite;         // List of Fragments for the suite
         Py::Object      elsePart;       // None or ElifPart instance
@@ -657,10 +660,13 @@ class With : public FragmentBase,
         virtual int setattr( const char *        attrName,
                              const Py::Object &  val );
         Py::Object getDisplayValue( const Py::Tuple &  args );
+        Py::Object isAsync( void );
 
     public:
-        Py::Object      items;      // Fragment for the items
-        Py::List        nsuite;     // List of suite statement fragments
+        Py::Object      asyncKeyword;   // Fragment for the 'async' keyword
+        Py::Object      withKeyword;    // Fragment for the 'with' keyword
+        Py::Object      items;          // Fragment for the items
+        Py::List        nsuite;         // List of suite statement fragments
 };
 
 
