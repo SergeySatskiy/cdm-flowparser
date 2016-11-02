@@ -1,7 +1,7 @@
 #
 # cdm-flowparser - python control flow parser used in Codimension to
 # automatically generate a flowchart like diagram
-# Copyright (C) 2010  Sergey Satskiy <sergey.satskiy@gmail.com>
+# Copyright (C) 2010 - 2016  Sergey Satskiy <sergey.satskiy@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

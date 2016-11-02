@@ -33,62 +33,18 @@
 #define GET_CF_FILE_DOC \
 "Provides the control flow object for the given file"
 
-// Fragment()
-#define CREATE_FRAGMENT_DOC \
-"Creates the Fragment class instance"
-
-// BangLine()
-#define CREATE_BANGLINE_DOC \
-"Creates the BangLine class instance"
-
-// EncodingLine()
-#define CREATE_ENCODINGLINE_DOC \
-"Creates the EncodingLine class instance"
-
-// Comment()
-#define CREATE_COMMENT_DOC \
-"Creates the Comment class instance"
-
-// CMLComment()
-#define CREATE_CML_COMMENT_DOC \
-"Creates the CMLComment class instance"
-
-// Docstring()
-#define CREATE_DOCSTRING_DOC \
-"Creates the Docstring class instance"
-
-// Decorator()
-#define CREATE_DECORATOR_DOC \
-"Creates the Decorator class instance"
-
 // Decorator::getDisplayValue()
 #define DECORATOR_GETDISPLAYVALUE_DOC \
 "Provides the decorator without trailing spaces and comments"
-
-// CodeBlock()
-#define CREATE_CODEBLOCK_DOC \
-"Creates the CodeBlock class instance"
-
-// Annotation
-#define CREATE_ANNOTATION_DOC \
-"Creates the Annotation class instance"
 
 // Annotation::getDisplayValue()
 #define ANNOTATION_GETDISPLAYVALUE_DOC \
 "Provides the annotation"
 
-// Argument
-#define CREATE_ARGUMENT_DOC \
-"Creates the Argument class instance"
-
 // Argument::getDisplayValue()
 #define ARGUMENT_GETDISPLAYVALUE_DOC \
 "Provides the argument"
 
-
-// Function()
-#define CREATE_FUNCTION_DOC \
-"Creates the Function class instance"
 
 // Function::getDisplayValue()
 #define FUNCTION_GETDISPLAYVALUE_DOC \
@@ -98,65 +54,29 @@
 #define FUNCTION_ISASYNC_DOC \
 "True if the function has the async modifier"
 
-// Class()
-#define CREATE_CLASS_DOC \
-"Creates the Class class instance"
-
 // Class::getDisplayValue()
 #define CLASS_GETDISPLAYVALUE_DOC \
 "Provides the class without trailing spaces and comments"
-
-// Break()
-#define CREATE_BREAK_DOC \
-"Creates the Break class instance"
-
-// Continue()
-#define CREATE_CONTINUE_DOC \
-"Creates the Continue class instance"
-
-// Return()
-#define CREATE_RETURN_DOC \
-"Creates the Return class instance"
 
 // Return::getDisplayValue()
 #define RETURN_GETDISPLAYVALUE_DOC \
 "Provides the return value without trailing spaces and comments"
 
-// Raise()
-#define CREATE_RAISE_DOC \
-"Creates the Raise class instance"
-
 // Raise::getDisplayValue()
 #define RAISE_GETDISPLAYVALUE_DOC \
 "Provides the raise value without trailing spaces and comments"
-
-// Assert()
-#define CREATE_ASSERT_DOC \
-"Creates the Assert class instance"
 
 // Assert::getDisplayValue()
 #define ASSERT_GETDISPLAYVALUE_DOC \
 "Provides the assert condition and a message (if so) without trailing spaces and comments"
 
-// SysExit()
-#define CREATE_SYSEXIT_DOC \
-"Creates the SysExit class instance"
-
 // SysExit::getDisplayValue()
 #define SYSEXIT_GETDISPLAYVALUE_DOC \
 "Provides the sys.exit() value without parentheses and comments"
 
-// While()
-#define CREATE_WHILE_DOC \
-"Creates the While class instance"
-
 // While::getDisplayValue()
 #define WHILE_GETDISPLAYVALUE_DOC \
 "Provides the while condition without trailing spaces and comments"
-
-// For()
-#define CREATE_FOR_DOC \
-"Creates the For class instance"
 
 // For::isAsync()
 #define FOR_ISASYNC_DOC \
@@ -166,22 +86,6 @@
 #define FOR_GETDISPLAYVALUE_DOC \
 "Provides the for iteration without trailing spaces and comments"
 
-// Import()
-#define CREATE_IMPORT_DOC \
-"Creates the Import class instance"
-
-// ElifPart()
-#define CREATE_ELIFPART_DOC \
-"Creates the ElifPart class instance"
-
-// If()
-#define CREATE_IF_DOC \
-"Creates the If class instance"
-
-// With()
-#define CREATE_WITH_DOC \
-"Creates the With class instance"
-
 // With::isAsync()
 #define WITH_ISASYNC_DOC \
 "True if the with statement has the async modifier"
@@ -190,21 +94,9 @@
 #define WITH_GETDISPLAYVALUE_DOC \
 "Provides the with items without trailing spaces and comments"
 
-// ExceptPart()
-#define CREATE_EXCEPTPART_DOC \
-"Creates the ExceptPart class instance"
-
 // Raise::getDisplayValue()
 #define EXCEPTPART_GETDISPLAYVALUE_DOC \
 "Provides the except part clause without trailing spaces and comments"
-
-// Try()
-#define CREATE_TRY_DOC \
-"Creates the Try class instance"
-
-// ControlFlow()
-#define CREATE_CONTROLFLOW_DOC \
-"Creates the ControlFlow class instance"
 
 
 // Fragment class docstring

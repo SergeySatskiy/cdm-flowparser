@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014 - 2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id: cflowmodule.hpp 2209 2014-05-20 04:21:47Z sergey.satskiy@gmail.com $
  *
  * Python extension module - versions
  */

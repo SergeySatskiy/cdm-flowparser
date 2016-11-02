@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014 - 2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id$
  *
  * Python extension module - control flow fragments
  */
@@ -33,11 +31,6 @@
 
 
 // small helper functions
-void throwUnknownAttribute( const char *  attrName )
-{
-    throw Py::AttributeError( "Unknown attribute '" +
-                              std::string( attrName ) + "'" );
-}
 
 void throwWrongBufArgument( const char *  funcName )
 {
@@ -45,13 +38,6 @@ void throwWrongBufArgument( const char *  funcName )
                             std::string( funcName ) +
                             "() supports no arguments or one argument "
                             "(text buffer)" );
-}
-
-void throwWrongType( const char *  attrName, const char *  typeName )
-{
-     throw Py::AttributeError( "Attribute '" +
-                               std::string( attrName ) + "' value "
-                               "must be of type " + std::string( typeName ) );
 }
 
 
@@ -65,31 +51,6 @@ void throwWrongType( const char *  attrName, const char *  typeName )
          { retval = Py::Boolean( member );              \
            return true; } } while ( 0 )
 
-
-#define SETINTATTR( member, value )                                 \
-    do { if ( strcmp( attrName, STR( member ) ) == 0 )              \
-         { if ( !value.isNumeric() )                                \
-             throwWrongType( STR( member ), "int or long" );        \
-           member = (INT_TYPE)(PYTHON_INT_TYPE( value ));           \
-           return true;                                             \
-         }                                                          \
-       } while ( 0 )
-
-#define SETBOOLATTR( member, value )                                \
-    do { if ( strcmp( attrName, STR( member ) ) == 0 )              \
-         { if ( !value.isBoolean() )                                \
-             throwWrongType( STR( member ), "bool" );               \
-           member = (bool)(Py::Boolean( value ));                   \
-           return 0;                                                \
-         }                                                          \
-       } while ( 0 )
-
-
-#define CHECKVALUETYPE( member, type )                                  \
-    do { if ( ! val.isNone() )                                          \
-           if ( strcmp( val.ptr()->ob_type->tp_name, type ) != 0 )      \
-             throwWrongType( member, type );                            \
-       } while ( 0 )
 
 
 #define TOFRAGMENT( member )                \
@@ -174,21 +135,6 @@ bool  FragmentBase::getAttribute( const char *  attrName, Py::Object &  retval )
     GETINTATTR( beginPos );
     GETINTATTR( endLine );
     GETINTATTR( endPos );
-
-    return false;
-}
-
-
-bool  FragmentBase::setAttribute( const char *        attrName,
-                                  const Py::Object &  value )
-{
-    SETINTATTR( kind, value );
-    SETINTATTR( begin, value );
-    SETINTATTR( end, value );
-    SETINTATTR( beginLine, value );
-    SETINTATTR( beginPos, value );
-    SETINTATTR( endLine, value );
-    SETINTATTR( endPos, value );
 
     return false;
 }
@@ -369,7 +315,6 @@ void Fragment::initType( void )
     behaviors().name( "Fragment" );
     behaviors().doc( FRAGMENT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -405,15 +350,6 @@ Py::Object  Fragment::repr( void )
     return Py::String( "<Fragment " + as_string() + ">" );
 }
 
-
-int  Fragment::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( setAttribute( attrName, val ) )
-        return 0;
-    throwUnknownAttribute( attrName );
-    return -1;
-}
 
 // --- End of Fragment definition ---
 
@@ -464,46 +400,6 @@ bool FragmentWithComments::getAttribute( const char *  attrName,
     if ( strcmp( attrName, "body" ) == 0 )
     {
         retval = body;
-        return true;
-    }
-    return false;
-}
-
-bool FragmentWithComments::setAttribute( const char *        attrName,
-                                         const Py::Object &  val )
-{
-    if ( strcmp( attrName, "body" ) == 0 )
-    {
-        CHECKVALUETYPE( "body", "Fragment" );
-        body = val;
-        return true;
-    }
-    if ( strcmp( attrName, "leadingComment" ) == 0 )
-    {
-        CHECKVALUETYPE( "leadingComment", "Comment" );
-        leadingComment = val;
-        return true;
-    }
-    if ( strcmp( attrName, "sideComment" ) == 0 )
-    {
-        CHECKVALUETYPE( "sideComment", "Comment" );
-        sideComment = val;
-        return true;
-    }
-    if ( strcmp( attrName, "leadingCMLComments" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'leadingCMLComments' value "
-                                      "must be a list" );
-        leadingCMLComments = val;
-        return true;
-    }
-    if ( strcmp( attrName, "sideCMLComments" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'sideCMLComments' value "
-                                      "must be a list" );
-        sideCMLComments = val;
         return true;
     }
     return false;
@@ -614,7 +510,6 @@ void BangLine::initType( void )
     behaviors().name( "BangLine" );
     behaviors().doc( BANGLINE_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -651,17 +546,6 @@ Py::Object  BangLine::repr( void )
 {
     return Py::String( "<BangLine " + as_string() + ">" );
 }
-
-
-int  BangLine::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( setAttribute( attrName, val ) )
-        return 0;
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  BangLine::getDisplayValue( const Py::Tuple &  args )
 {
@@ -709,7 +593,6 @@ void EncodingLine::initType( void )
     behaviors().name( "EncodingLine" );
     behaviors().doc( ENCODINGLINE_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -751,25 +634,6 @@ Py::Object  EncodingLine::repr( void )
                        "\nNormalizedName: " + normalizedName.as_std_string() +
                        ">" );
 }
-
-
-int  EncodingLine::setattr( const char *        attrName,
-                            const Py::Object &  val )
-{
-    if ( setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "normalizedName" ) == 0 )
-    {
-        if ( ! val.isString() )
-            throw Py::AttributeError( "Attribute 'normalizedName' value "
-                                      "must be a string" );
-        normalizedName = Py::String( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  EncodingLine::getDisplayValue( const Py::Tuple &  args )
 {
@@ -828,7 +692,6 @@ void Comment::initType( void )
     behaviors().name( "Comment" );
     behaviors().doc( COMMENT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -870,26 +733,6 @@ Py::Object  Comment::repr( void )
                         "\n" + representList( parts, "Parts" ) +
                         ">" );
 }
-
-
-int  Comment::setattr( const char *        attrName,
-                       const Py::Object &  val )
-{
-    if ( setAttribute( attrName, val ) )
-        return 0;
-
-    if ( strcmp( attrName, "parts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'parts' value "
-                                      "must be a list" );
-        parts = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  Comment::getDisplayValue( const Py::Tuple &  args )
 {
@@ -1016,7 +859,6 @@ void CMLComment::initType( void )
     behaviors().name( "Comment" );
     behaviors().doc( CML_COMMENT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1055,48 +897,6 @@ Py::Object CMLComment::getattr( const char *  attrName )
     if ( strcmp( attrName, "properties" ) == 0 )
         return properties;
     return getattr_methods( attrName );
-}
-
-int  CMLComment::setattr( const char *        attrName,
-                          const Py::Object &  val )
-{
-    if ( setAttribute( attrName, val ) )
-        return 0;
-
-    if ( strcmp( attrName, "parts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'parts' value "
-                                      "must be a list" );
-        parts = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "version" ) == 0 )
-    {
-        if ( ! val.isNumeric() )
-            throw Py::AttributeError( "Attribute 'version' value "
-                                      "must be an integer" );
-        version = Py::Int( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "recordType" ) == 0 )
-    {
-        if ( ! val.isString() )
-            throw Py::AttributeError( "Attribute 'recordType' value "
-                                      "must be a string" );
-        recordType = Py::String( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "properties" ) == 0 )
-    {
-        if ( ! val.isDict() )
-            throw Py::AttributeError( "Attribute 'properties' value "
-                                      "must be a dictionary" );
-        properties = Py::Dict( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object  CMLComment::repr( void )
@@ -1230,7 +1030,6 @@ void Docstring::initType( void )
     behaviors().name( "Docstring" );
     behaviors().doc( DOCSTRING_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1276,27 +1075,6 @@ Py::Object  Docstring::repr( void )
                        "\n" + representList( parts, "Parts" ) +
                        ">" );
 }
-
-
-int  Docstring::setattr( const char *        attrName,
-                         const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "parts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::ValueError( "Attribute 'parts' value "
-                                  "must be a list" );
-        parts = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  Docstring::getDisplayValue( const Py::Tuple &  args )
 {
@@ -1417,7 +1195,6 @@ void Decorator::initType( void )
     behaviors().name( "Decorator" );
     behaviors().doc( DECORATOR_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1467,31 +1244,6 @@ Py::Object  Decorator::repr( void )
                        "\n" + representFragmentPart( arguments, "Arguments" ) +
                        ">" );
 }
-
-
-int  Decorator::setattr( const char *        attrName,
-                         const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "name" ) == 0 )
-    {
-        CHECKVALUETYPE( "name", "Fragment" );
-        name = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "arguments" ) == 0 )
-    {
-        CHECKVALUETYPE( "arguments", "Fragment" );
-        arguments = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object Decorator::getDisplayValue( const Py::Tuple &  args )
 {
@@ -1553,7 +1305,6 @@ void CodeBlock::initType( void )
     behaviors().name( "CodeBlock" );
     behaviors().doc( CODEBLOCK_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1594,19 +1345,6 @@ Py::Object  CodeBlock::repr( void )
     return Py::String( "<CodeBlock " + FragmentBase::as_string() +
                        "\n" + FragmentWithComments::as_string() + ">" );
 }
-
-
-int  CodeBlock::setattr( const char *        attrName,
-                         const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  CodeBlock::getDisplayValue( const Py::Tuple &  args )
 {
@@ -1654,7 +1392,6 @@ void Annotation::initType( void )
     behaviors().name( "Annotation" );
     behaviors().doc( ANNOTATION_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1701,29 +1438,6 @@ Py::Object  Annotation::repr( void )
                        ">" );
 }
 
-
-int  Annotation::setattr( const char *        attrName,
-                          const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "separator" ) == 0 )
-    {
-        CHECKVALUETYPE( "separator", "Fragment" );
-        separator = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "text" ) == 0 )
-    {
-        CHECKVALUETYPE( "text", "Fragment" );
-        text = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
-
 Py::Object Annotation::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      textFragment( static_cast<Fragment *>(text.ptr()) );
@@ -1769,7 +1483,6 @@ void Argument::initType( void )
     behaviors().name( "Argument" );
     behaviors().doc( ARGUMENT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -1821,39 +1534,6 @@ Py::Object  Argument::repr( void )
                        "\n" + representFragmentPart( separator, "Separator" ) +
                        "\n" + representFragmentPart( defaultValue, "defaultValue" ) +
                        ">" );
-}
-
-int  Argument::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "name" ) == 0 )
-    {
-        CHECKVALUETYPE( "name", "Fragment" );
-        name = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "annotation" ) == 0 )
-    {
-        CHECKVALUETYPE( "annotation", "Annotation" );
-        annotation = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "separator" ) == 0 )
-    {
-        CHECKVALUETYPE( "separator", "Fragment" );
-        separator = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "defaultValue" ) == 0 )
-    {
-        CHECKVALUETYPE( "defaultValue", "Fragment" );
-        defaultValue = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object Argument::getDisplayValue( const Py::Tuple &  args )
@@ -1931,7 +1611,6 @@ void Function::initType( void )
     behaviors().name( "Function" );
     behaviors().doc( FUNCTION_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2010,53 +1689,6 @@ Py::Object  Function::repr( void )
                        ">" );
 }
 
-
-int  Function::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "decorators" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'decorators' value "
-                                      "must be a list" );
-        decors = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "name" ) == 0 )
-    {
-        CHECKVALUETYPE( "name", "Fragment" );
-        name = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "arguments" ) == 0 )
-    {
-        CHECKVALUETYPE( "arguments", "Fragment" );
-        arguments = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "docstring" ) == 0 )
-    {
-        CHECKVALUETYPE( "docstring", "Docstring" );
-        docstring = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
-
 Py::Object Function::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      nameFragment( static_cast<Fragment *>(name.ptr()) );
@@ -2121,7 +1753,6 @@ void Class::initType( void )
     behaviors().name( "Class" );
     behaviors().doc( CLASS_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2182,52 +1813,6 @@ Py::Object  Class::repr( void )
                        ">" );
 }
 
-
-int  Class::setattr( const char *        attrName,
-                     const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "decorators" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'decorators' value "
-                                      "must be a list" );
-        decors = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "name" ) == 0 )
-    {
-        CHECKVALUETYPE( "name", "Fragment" );
-        name = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "baseClasses" ) == 0 )
-    {
-        CHECKVALUETYPE( "baseClasses", "Fragment" );
-        baseClasses = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "docstring" ) == 0 )
-    {
-        CHECKVALUETYPE( "docstring", "Docstring" );
-        docstring = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object Class::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      nameFragment( static_cast<Fragment *>(name.ptr()) );
@@ -2281,7 +1866,6 @@ void Break::initType( void )
     behaviors().name( "Break" );
     behaviors().doc( BREAK_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2321,18 +1905,6 @@ Py::Object  Break::repr( void )
                        "\n" + FragmentWithComments::as_string() + ">" );
 }
 
-int  Break::setattr( const char *        attrName,
-                     const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
-
 Py::Object  Break::getDisplayValue( const Py::Tuple &  args )
 {
     return Py::String( "break" );
@@ -2354,7 +1926,6 @@ void Continue::initType( void )
     behaviors().name( "Continue" );
     behaviors().doc( CONTINUE_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2394,17 +1965,6 @@ Py::Object  Continue::repr( void )
                        "\n" + FragmentWithComments::as_string() + ">" );
 }
 
-int  Continue::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 
 Py::Object  Continue::getDisplayValue( const Py::Tuple &  args )
 {
@@ -2428,7 +1988,6 @@ void Return::initType( void )
     behaviors().name( "Return" );
     behaviors().doc( RETURN_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2471,23 +2030,6 @@ Py::Object  Return::repr( void )
                        "\n" + FragmentWithComments::as_string() +
                        "\n" + representFragmentPart( value, "Value" ) +
                        ">" );
-}
-
-int  Return::setattr( const char *        attrName,
-                      const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "value" ) == 0 )
-    {
-        CHECKVALUETYPE( "value", "Fragment" );
-        value = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object Return::getDisplayValue( const Py::Tuple &  args )
@@ -2533,7 +2075,6 @@ void Raise::initType( void )
     behaviors().name( "Raise" );
     behaviors().doc( RAISE_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2576,23 +2117,6 @@ Py::Object  Raise::repr( void )
                        "\n" + FragmentWithComments::as_string() +
                        "\n" + representFragmentPart( value, "Value" ) +
                        ">" );
-}
-
-int  Raise::setattr( const char *        attrName,
-                      const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "value" ) == 0 )
-    {
-        CHECKVALUETYPE( "value", "Fragment" );
-        value = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object Raise::getDisplayValue( const Py::Tuple &  args )
@@ -2639,7 +2163,6 @@ void Assert::initType( void )
     behaviors().name( "Assert" );
     behaviors().doc( ASSERT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2686,29 +2209,6 @@ Py::Object  Assert::repr( void )
                        "\n" + representFragmentPart( tst, "Test" ) +
                        "\n" + representFragmentPart( message, "Message" ) +
                        ">" );
-}
-
-int  Assert::setattr( const char *        attrName,
-                      const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "test" ) == 0 )
-    {
-        CHECKVALUETYPE( "test", "Fragment" );
-        tst = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "message" ) == 0 )
-    {
-        CHECKVALUETYPE( "message", "Fragment" );
-        message = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object Assert::getDisplayValue( const Py::Tuple &  args )
@@ -2766,7 +2266,6 @@ void SysExit::initType( void )
     behaviors().name( "SysExit" );
     behaviors().doc( SYSEXIT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2809,23 +2308,6 @@ Py::Object  SysExit::repr( void )
                        "\n" + FragmentWithComments::as_string() +
                        "\n" + representFragmentPart( actualArg, "Argument" ) +
                        ">" );
-}
-
-int  SysExit::setattr( const char *        attrName,
-                       const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "argument" ) == 0 )
-    {
-        CHECKVALUETYPE( "argument", "Fragment" );
-        actualArg = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 Py::Object SysExit::getDisplayValue( const Py::Tuple &  args )
@@ -2874,7 +2356,6 @@ void While::initType( void )
     behaviors().name( "While" );
     behaviors().doc( WHILE_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -2927,37 +2408,6 @@ Py::Object  While::repr( void )
                        ">" );
 }
 
-int  While::setattr( const char *        attrName,
-                     const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "condition" ) == 0 )
-    {
-        CHECKVALUETYPE( "condition", "Fragment" );
-        condition = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "elsePart" ) == 0 )
-    {
-        CHECKVALUETYPE( "elsePart", "IfPart" );
-        elsePart = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object While::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      condFragment( static_cast<Fragment *>(condition.ptr()) );
@@ -3002,7 +2452,6 @@ void For::initType( void )
     behaviors().name( "For" );
     behaviors().doc( FOR_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3065,37 +2514,6 @@ Py::Object  For::repr( void )
                        ">" );
 }
 
-int  For::setattr( const char *        attrName,
-                   const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "iteration" ) == 0 )
-    {
-        CHECKVALUETYPE( "iteration", "Fragment" );
-        iteration = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "elsePart" ) == 0 )
-    {
-        CHECKVALUETYPE( "elsePart", "IfPart" );
-        elsePart = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object For::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      itFragment( static_cast<Fragment *>(iteration.ptr()) );
@@ -3145,7 +2563,6 @@ void Import::initType( void )
     behaviors().name( "Import" );
     behaviors().doc( IMPORT_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3192,29 +2609,6 @@ Py::Object  Import::repr( void )
                        "\n" + representFragmentPart( fromPart, "FromPart" ) +
                        "\n" + representFragmentPart( whatPart, "WhatPart" ) +
                        ">" );
-}
-
-int  Import::setattr( const char *        attrName,
-                      const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "fromPart" ) == 0 )
-    {
-        CHECKVALUETYPE( "fromPart", "Fragment" );
-        fromPart = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "whatPart" ) == 0 )
-    {
-        CHECKVALUETYPE( "whatPart", "Fragment" );
-        whatPart = val;
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 
@@ -3275,7 +2669,6 @@ void ElifPart::initType( void )
     behaviors().name( "ElifPart" );
     behaviors().doc( ELIFPART_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3324,31 +2717,6 @@ Py::Object  ElifPart::repr( void )
                        ">" );
 }
 
-int  ElifPart::setattr( const char *        attrName,
-                        const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "condition" ) == 0 )
-    {
-        CHECKVALUETYPE( "condition", "Fragment" );
-        condition = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object  ElifPart::getDisplayValue( const Py::Tuple &  args )
 {
     if (condition.isNone())
@@ -3393,7 +2761,6 @@ void If::initType( void )
     behaviors().name( "If" );
     behaviors().doc( IF_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3436,26 +2803,6 @@ Py::Object  If::repr( void )
                        ">" );
 }
 
-int  If::setattr( const char *        attrName,
-                  const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "parts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'parts' value "
-                                      "must be a list" );
-        parts = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
-
 
 // --- End of If definition ---
 
@@ -3475,7 +2822,6 @@ void With::initType( void )
     behaviors().name( "With" );
     behaviors().doc( WITH_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3534,31 +2880,6 @@ Py::Object  With::repr( void )
                        ">" );
 }
 
-int  With::setattr( const char *        attrName,
-                    const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "items" ) == 0 )
-    {
-        CHECKVALUETYPE( "items", "Fragment" );
-        items = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object With::getDisplayValue( const Py::Tuple &  args )
 {
     Fragment *      itemsFragment( static_cast<Fragment *>(items.ptr()) );
@@ -3608,7 +2929,6 @@ void ExceptPart::initType( void )
     behaviors().name( "ExceptPart" );
     behaviors().doc( EXCEPTPART_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3657,31 +2977,6 @@ Py::Object  ExceptPart::repr( void )
                        ">" );
 }
 
-int  ExceptPart::setattr( const char *        attrName,
-                          const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "clause" ) == 0 )
-    {
-        CHECKVALUETYPE( "clause", "Fragment" );
-        clause = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object ExceptPart::getDisplayValue( const Py::Tuple &  args )
 {
     if ( clause.isNone() )
@@ -3725,7 +3020,6 @@ void Try::initType( void )
     behaviors().name( "Try" );
     behaviors().doc( TRY_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3782,45 +3076,6 @@ Py::Object  Try::repr( void )
                        ">" );
 }
 
-int  Try::setattr( const char *        attrName,
-                   const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "exceptParts" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'exceptParts' value "
-                                      "must be a list" );
-        exceptParts = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "elsePart" ) == 0 )
-    {
-        CHECKVALUETYPE( "elsePart", "Fragment" );
-        elsePart = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "finallyPart" ) == 0 )
-    {
-        CHECKVALUETYPE( "finallyPart", "Fragment" );
-        finallyPart = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
-}
-
 Py::Object  Try::getDisplayValue( const Py::Tuple &  args )
 {
     return Py::String( "" );
@@ -3853,7 +3108,6 @@ void ControlFlow::initType( void )
     behaviors().name( "ControlFlow" );
     behaviors().doc( CONTROLFLOW_DOC );
     behaviors().supportGetattr();
-    behaviors().supportSetattr();
     behaviors().supportRepr();
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
@@ -3924,59 +3178,6 @@ Py::Object  ControlFlow::repr( void )
                        "\n" + representPart( docstring, "Docstring" ) +
                        "\n" + representList( nsuite, "Suite" ) +
                        ">" );
-}
-
-int  ControlFlow::setattr( const char *        attrName,
-                           const Py::Object &  val )
-{
-    if ( FragmentBase::setAttribute( attrName, val ) )
-        return 0;
-    if ( FragmentWithComments::setAttribute( attrName, val ) )
-        return 0;
-    if ( strcmp( attrName, "bangLine" ) == 0 )
-    {
-        CHECKVALUETYPE( "bangLine", "BangLine" );
-        bangLine = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "encodingLine" ) == 0 )
-    {
-        CHECKVALUETYPE( "encodingLine", "EncodingLine" );
-        encodingLine = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "docstring" ) == 0 )
-    {
-        CHECKVALUETYPE( "docstring", "Docstring" );
-        docstring = val;
-        return 0;
-    }
-    if ( strcmp( attrName, "suite" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'suite' value "
-                                      "must be a list" );
-        nsuite = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "errors" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'errors' value "
-                                      "must be a list" );
-        errors = Py::List( val );
-        return 0;
-    }
-    if ( strcmp( attrName, "warnings" ) == 0 )
-    {
-        if ( ! val.isList() )
-            throw Py::AttributeError( "Attribute 'warnings' value "
-                                      "must be a list" );
-        warnings = Py::List( val );
-        return 0;
-    }
-    throwUnknownAttribute( attrName );
-    return -1;  // Suppress compiler warning
 }
 
 
