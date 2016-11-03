@@ -38,9 +38,11 @@ VERSION_DEFINES=-DCDM_CF_PARSER_VERSION=\"${VERSION}\"
 FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES} -Wl,-rpath=${PYTHON_LIBS_PATH}
 
 PYCXX_OBJ_FILES=${PYCXX_DIR}/Src/cxxsupport.o ${PYCXX_DIR}/Src/cxx_extensions.o \
-                ${PYCXX_DIR}/Src/IndirectPythonInterface.o ${PYCXX_DIR}/Src/cxxextensions.o
+                ${PYCXX_DIR}/Src/IndirectPythonInterface.o ${PYCXX_DIR}/Src/cxxextensions.o \
+                ${PYCXX_DIR}/Src/cxx_exceptions.o
 PYCXX_SRC_FILES=${PYCXX_DIR}/Src/cxxsupport.cxx ${PYCXX_DIR}/Src/cxx_extensions.cxx \
-                ${PYCXX_DIR}/Src/IndirectPythonInterface.cxx ${PYCXX_DIR}/Src/cxxextensions.c
+                ${PYCXX_DIR}/Src/IndirectPythonInterface.cxx ${PYCXX_DIR}/Src/cxxextensions.c \
+                ${PYCXX_DIR}/Src/cxx_exceptions.cxx
 CDM_SRC_FILES=cflowmodule.cpp cflowfragments.cpp cflowutils.cpp cflowparser.cpp cflowcomments.cpp
 CDM_INC_FILES=cflowmodule.hpp cflowfragments.hpp cflowutils.hpp cflowparser.hpp cflowcomments.hpp
 

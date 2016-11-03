@@ -75,7 +75,7 @@ representList( const Py::List &  lst,
 
     std::string     result( name );
     result += ": ";
-    for ( size_t  k = 0; k < lst.size(); ++k )
+    for ( ssize_t  k = 0; k < lst.size(); ++k )
     {
         if ( k != 0 )
             result += "\n";
@@ -917,7 +917,7 @@ void CMLComment::extractProperties( Context *  context )
     std::string     completed;
     int             firstLine( -1 );
 
-    for ( size_t  k = 0; k < parts.size(); ++k )
+    for ( ssize_t  k = 0; k < parts.size(); ++k )
     {
         Fragment *      f( TOFRAGMENT( parts[ k ] ) );
         const char *    b;
