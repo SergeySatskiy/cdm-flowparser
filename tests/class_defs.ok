@@ -121,8 +121,17 @@
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
+                 Async: None
+                 Def: [177:179] (20,5) (20,7)
                  Name: [181:188] (20,9) (20,16)
                  Arguments: [189:196] (20,17) (20,24)
+                 ArgList: <Argument [191:194] (20,19) (20,22)
+                           Name: [191:194] (20,19) (20,22)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [207:210] (21,9) (21,12)
@@ -151,8 +160,29 @@
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
+                 Async: None
+                 Def: [239:241] (24,5) (24,7)
                  Name: [243:243] (24,9) (24,9)
                  Arguments: [244:279] (24,10) (24,45)
+                 ArgList: <Argument [246:248] (24,12) (24,14)
+                           Name: [246:248] (24,12) (24,14)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                          <Argument [251:266] (24,17) (24,32)
+                           Name: [251:251] (24,17) (24,17)
+                           Annotation: None
+                           Separator: [253:253] (24,19) (24,19)
+                           defaultValue: [255:266] (24,21) (24,32)
+                          >
+                          <Argument [269:277] (24,35) (24,43)
+                           Name: [269:269] (24,35) (24,35)
+                           Annotation: None
+                           Separator: [271:271] (24,37) (24,37)
+                           defaultValue: [273:277] (24,39) (24,43)
+                          >
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [290:293] (25,9) (25,12)
@@ -169,8 +199,23 @@
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
+                 Async: None
+                 Def: [299:301] (26,5) (26,7)
                  Name: [303:303] (26,9) (26,9)
                  Arguments: [304:314] (26,10) (26,20)
+                 ArgList: <Argument [306:309] (26,12) (26,15)
+                           Name: [306:309] (26,12) (26,15)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                          <Argument [312:312] (26,18) (26,18)
+                           Name: [312:312] (26,18) (26,18)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [325:328] (27,9) (27,12)
@@ -187,8 +232,29 @@
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
+                 Async: None
+                 Def: [334:336] (28,5) (28,7)
                  Name: [338:338] (28,9) (28,9)
                  Arguments: [339:358] (28,10) (28,29)
+                 ArgList: <Argument [341:345] (28,12) (28,16)
+                           Name: [341:345] (28,12) (28,16)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                          <Argument [348:348] (28,19) (28,19)
+                           Name: [348:348] (28,19) (28,19)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                          <Argument [351:356] (28,22) (28,27)
+                           Name: [351:351] (28,22) (28,22)
+                           Annotation: None
+                           Separator: [353:353] (28,24) (28,24)
+                           defaultValue: [355:356] (28,26) (28,27)
+                          >
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [369:372] (29,9) (29,12)
@@ -219,8 +285,17 @@
                  SideComment: None
                  LeadingCMLComments: n/a
                  SideCMLComments: n/a
+                 Async: None
+                 Def: [404:406] (33,5) (33,7)
                  Name: [408:416] (33,9) (33,17)
                  Arguments: [417:424] (33,18) (33,25)
+                 ArgList: <Argument [419:422] (33,20) (33,23)
+                           Name: [419:422] (33,20) (33,23)
+                           Annotation: None
+                           Separator: None
+                           defaultValue: None
+                          >
+                 Annotation: None
                  Docstring: None
                  Decorators: n/a
                  Suite: <CodeBlock [435:438] (34,9) (34,12)

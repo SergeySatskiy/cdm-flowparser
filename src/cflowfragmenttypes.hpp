@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014-2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id$
  *
  * Python extension module - control flow fragment types
  */
@@ -48,6 +46,8 @@
 #define WITH_FRAGMENT           20
 #define EXCEPT_PART_FRAGMENT    21
 #define TRY_FRAGMENT            22
+#define ANNOTATION_FRAGMENT     23
+#define ARGUMENT_FRAGMENT       24
 
 // Codimension Markup Language (cml) comment
 #define CML_COMMENT_FRAGMENT    63

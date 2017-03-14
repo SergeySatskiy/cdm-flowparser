@@ -1,6 +1,6 @@
 /*
  * codimension - graphics python two-way code editor and analyzer
- * Copyright (C) 2014  Sergey Satskiy <sergey.satskiy@gmail.com>
+ * Copyright (C) 2014-2016  Sergey Satskiy <sergey.satskiy@gmail.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,6 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * $Id$
  *
  * Python extension module
  */
@@ -43,6 +41,8 @@ CDMControlFlowModule::CDMControlFlowModule() :
     Decorator::initType();
     CodeBlock::initType();
 
+    Annotation::initType();
+    Argument::initType();
     Function::initType();
     Class::initType();
     Break::initType();
@@ -60,82 +60,6 @@ CDMControlFlowModule::CDMControlFlowModule() :
     ExceptPart::initType();
     Try::initType();
     ControlFlow::initType();
-
-    add_varargs_method( "Fragment",
-                        &CDMControlFlowModule::createFragment,
-                        CREATE_FRAGMENT_DOC );
-    add_varargs_method( "BangLine",
-                        &CDMControlFlowModule::createBangLine,
-                        CREATE_BANGLINE_DOC );
-    add_varargs_method( "EncodingLine",
-                        &CDMControlFlowModule::createEncodingLine,
-                        CREATE_ENCODINGLINE_DOC );
-    add_varargs_method( "Comment",
-                        &CDMControlFlowModule::createComment,
-                        CREATE_COMMENT_DOC );
-    add_varargs_method( "CMLComment",
-                        &CDMControlFlowModule::createCMLComment,
-                        CREATE_CML_COMMENT_DOC );
-    add_varargs_method( "Docstring",
-                        &CDMControlFlowModule::createDocstring,
-                        CREATE_DOCSTRING_DOC );
-    add_varargs_method( "Decorator",
-                        &CDMControlFlowModule::createDecorator,
-                        CREATE_DECORATOR_DOC );
-    add_varargs_method( "CodeBlock",
-                        &CDMControlFlowModule::createCodeBlock,
-                        CREATE_CODEBLOCK_DOC );
-    add_varargs_method( "Function",
-                        &CDMControlFlowModule::createFunction,
-                        CREATE_FUNCTION_DOC );
-    add_varargs_method( "Class",
-                        &CDMControlFlowModule::createClass,
-                        CREATE_CLASS_DOC );
-    add_varargs_method( "Break",
-                        &CDMControlFlowModule::createBreak,
-                        CREATE_BREAK_DOC );
-    add_varargs_method( "Continue",
-                        &CDMControlFlowModule::createContinue,
-                        CREATE_CONTINUE_DOC );
-    add_varargs_method( "Return",
-                        &CDMControlFlowModule::createReturn,
-                        CREATE_RETURN_DOC );
-    add_varargs_method( "Raise",
-                        &CDMControlFlowModule::createRaise,
-                        CREATE_RAISE_DOC );
-    add_varargs_method( "Assert",
-                        &CDMControlFlowModule::createAssert,
-                        CREATE_ASSERT_DOC );
-    add_varargs_method( "SysExit",
-                        &CDMControlFlowModule::createSysExit,
-                        CREATE_SYSEXIT_DOC );
-    add_varargs_method( "While",
-                        &CDMControlFlowModule::createWhile,
-                        CREATE_WHILE_DOC );
-    add_varargs_method( "For",
-                        &CDMControlFlowModule::createFor,
-                        CREATE_FOR_DOC );
-    add_varargs_method( "Import",
-                        &CDMControlFlowModule::createImport,
-                        CREATE_IMPORT_DOC );
-    add_varargs_method( "ElifPart",
-                        &CDMControlFlowModule::createElifPart,
-                        CREATE_ELIFPART_DOC );
-    add_varargs_method( "If",
-                        &CDMControlFlowModule::createIf,
-                        CREATE_IF_DOC );
-    add_varargs_method( "With",
-                        &CDMControlFlowModule::createWith,
-                        CREATE_WITH_DOC );
-    add_varargs_method( "ExceptPart",
-                        &CDMControlFlowModule::createExceptPart,
-                        CREATE_EXCEPTPART_DOC );
-    add_varargs_method( "Try",
-                        &CDMControlFlowModule::createTry,
-                        CREATE_TRY_DOC );
-    add_varargs_method( "ControlFlow",
-                        &CDMControlFlowModule::createControlFlow,
-                        CREATE_CONTROLFLOW_DOC );
 
     // Free functions visible from the module
     add_varargs_method( "getControlFlowFromMemory",
@@ -161,6 +85,8 @@ CDMControlFlowModule::CDMControlFlowModule() :
     d[ "DOCSTRING_FRAGMENT" ]       = Py::Int( DOCSTRING_FRAGMENT );
     d[ "DECORATOR_FRAGMENT" ]       = Py::Int( DECORATOR_FRAGMENT );
     d[ "CODEBLOCK_FRAGMENT" ]       = Py::Int( CODEBLOCK_FRAGMENT );
+    d[ "ANNOTATION_FRAGMENT" ]      = Py::Int( ANNOTATION_FRAGMENT );
+    d[ "ARGUMENT_FRAGMENT" ]        = Py::Int( ARGUMENT_FRAGMENT );
     d[ "FUNCTION_FRAGMENT" ]        = Py::Int( FUNCTION_FRAGMENT );
     d[ "CLASS_FRAGMENT" ]           = Py::Int( CLASS_FRAGMENT );
     d[ "BREAK_FRAGMENT" ]           = Py::Int( BREAK_FRAGMENT );
@@ -302,132 +228,6 @@ CDMControlFlowModule::getControlFlowFromFile( const Py::Tuple &  args )
     return Py::asObject( controlFlow );
 }
 
-
-
-Py::Object  CDMControlFlowModule::createFragment( const Py::Tuple &  args )
-{
-    return Py::asObject( new Fragment() );
-}
-
-Py::Object  CDMControlFlowModule::createBangLine( const Py::Tuple &  args )
-{
-    return Py::asObject( new BangLine() );
-}
-
-Py::Object  CDMControlFlowModule::createEncodingLine( const Py::Tuple &  args )
-{
-    return Py::asObject( new EncodingLine() );
-}
-
-Py::Object  CDMControlFlowModule::createComment( const Py::Tuple &  args )
-{
-    return Py::asObject( new Comment() );
-}
-
-Py::Object  CDMControlFlowModule::createCMLComment( const Py::Tuple &  args )
-{
-    return Py::asObject( new CMLComment() );
-}
-
-Py::Object  CDMControlFlowModule::createDocstring( const Py::Tuple &  args )
-{
-    return Py::asObject( new Docstring() );
-}
-
-Py::Object  CDMControlFlowModule::createDecorator( const Py::Tuple &  args )
-{
-    return Py::asObject( new Decorator() );
-}
-
-Py::Object  CDMControlFlowModule::createCodeBlock( const Py::Tuple &  args )
-{
-    return Py::asObject( new CodeBlock() );
-}
-
-Py::Object  CDMControlFlowModule::createFunction( const Py::Tuple &  args )
-{
-    return Py::asObject( new Function() );
-}
-
-Py::Object  CDMControlFlowModule::createClass( const Py::Tuple &  args )
-{
-    return Py::asObject( new Class() );
-}
-
-Py::Object  CDMControlFlowModule::createBreak( const Py::Tuple &  args )
-{
-    return Py::asObject( new Break() );
-}
-
-Py::Object  CDMControlFlowModule::createContinue( const Py::Tuple &  args )
-{
-    return Py::asObject( new Continue() );
-}
-
-Py::Object  CDMControlFlowModule::createReturn( const Py::Tuple &  args )
-{
-    return Py::asObject( new Return() );
-}
-
-Py::Object  CDMControlFlowModule::createRaise( const Py::Tuple &  args )
-{
-    return Py::asObject( new Raise() );
-}
-
-Py::Object  CDMControlFlowModule::createAssert( const Py::Tuple &  args )
-{
-    return Py::asObject( new Assert() );
-}
-
-Py::Object  CDMControlFlowModule::createSysExit( const Py::Tuple &  args )
-{
-    return Py::asObject( new SysExit() );
-}
-
-Py::Object  CDMControlFlowModule::createWhile( const Py::Tuple &  args )
-{
-    return Py::asObject( new While() );
-}
-
-Py::Object  CDMControlFlowModule::createFor( const Py::Tuple &  args )
-{
-    return Py::asObject( new For() );
-}
-
-Py::Object  CDMControlFlowModule::createImport( const Py::Tuple &  args )
-{
-    return Py::asObject( new Import() );
-}
-
-Py::Object  CDMControlFlowModule::createElifPart( const Py::Tuple &  args )
-{
-    return Py::asObject( new ElifPart() );
-}
-
-Py::Object  CDMControlFlowModule::createIf( const Py::Tuple &  args )
-{
-    return Py::asObject( new If() );
-}
-
-Py::Object  CDMControlFlowModule::createWith( const Py::Tuple &  args )
-{
-    return Py::asObject( new With() );
-}
-
-Py::Object  CDMControlFlowModule::createExceptPart( const Py::Tuple &  args )
-{
-    return Py::asObject( new ExceptPart() );
-}
-
-Py::Object  CDMControlFlowModule::createTry( const Py::Tuple &  args )
-{
-    return Py::asObject( new Try() );
-}
-
-Py::Object  CDMControlFlowModule::createControlFlow( const Py::Tuple &  args )
-{
-    return Py::asObject( new ControlFlow() );
-}
 
 
 
