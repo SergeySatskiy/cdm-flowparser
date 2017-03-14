@@ -8,7 +8,7 @@ a start point (line, column and absolute position) plus an end point (line, colu
 
 Comments are preserved too.
 
-The parser is used in the Codimension Python IDE to generate a flowchart like diagrams for an arbitrary
+The parser is used in the [Codimension Python IDE](https://github.com/SergeySatskiy/codimension) to generate a flowchart like diagrams for an arbitrary
 Python code as the user types it. Basically the IDE detects a pause in typing and regenerates the diagram.
 
 ## Python 3
