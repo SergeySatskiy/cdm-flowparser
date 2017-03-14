@@ -12,7 +12,14 @@ The parser is used in the Codimension Python IDE to generate a flowchart like di
 Python code as the user types it. Basically the IDE detects a pause in typing and regenerates the diagram.
 
 ## Python 3
-The master branch contains code for Python 3 (3.5 grammar is covered). There are no releases built yet however the code is quite stable. If you like to have a Python 3 module please follow the instructions of how to build it from git clone below.
+The master branch contains code for Python 3 (3.5 grammar is covered). There are no releases built yet however the code is quite stable. If you like to have a Python 3 module please follow these steps:
+```shell
+git clone https://github.com/SergeySatskiy/cdm-flowparser.git
+cd cdm-flowparser
+make
+make check
+make localinstall
+```
 
 ## Python 2
 The latest Python 2 supporting release is 1.0.1. Both pre-built modules and source code are available in the releases area. Here is a link: [latest Python 2 release 1.0.1](https://github.com/SergeySatskiy/cdm-flowparser/releases/tag/v1.0.1). If you like to build a python 2 module from sources please follow these steps:
@@ -27,18 +34,8 @@ make localinstall
 make check
 ```
 
-## Building from git clone (Python 3)
-
-```shell
-git clone https://github.com/SergeySatskiy/cdm-flowparser.git
-cd cdm-flowparser
-make
-make check
-make localinstall
-```
-
 ## Visualizing parsed data
-Note: the example output is provided for the Python 2 module. The output of the Python 3 module may be slightly different as more information is extracted. Conceptually pretty much the same information is provided for both Python 2 and 3 implementations.
+**Note:** the example output is provided for the Python 2 module. The output of the Python 3 module may be slightly different as more information is extracted. However, conceptually pretty much the same information is provided for both Python 2 and 3 implementations.
 
 Suppose there is the following file ~/my-file.py with the following content:
 ```python
