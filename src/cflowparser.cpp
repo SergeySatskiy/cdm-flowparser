@@ -1537,9 +1537,13 @@ processImport( Context *  context,
         Fragment *  fromFragment( new Fragment );
         Fragment *  whatFragment( new Fragment );
 
-        node *      fromPartBegin = findChildOfType( tree, DOT );
+        node *      fromPartBegin = findChildOfType( tree, ELLIPSIS );
         if ( fromPartBegin == NULL )
-            fromPartBegin = findChildOfType( tree, dotted_name );
+        {
+            fromPartBegin = findChildOfType( tree, DOT );
+            if ( fromPartBegin == NULL )
+                fromPartBegin = findChildOfType( tree, dotted_name );
+        }
         assert( fromPartBegin != NULL );
 
         fromFragment->parent = import;
@@ -1548,7 +1552,8 @@ processImport( Context *  context,
         updateBegin( fromFragment, fromPartBegin, context->lineShifts );
 
         node *      lastFromPart = NULL;
-        if ( fromPartBegin->n_type == DOT )
+        if ( fromPartBegin->n_type == DOT ||
+             fromPartBegin->n_type == ELLIPSIS )
         {
             // it could be:
             // DOT ... DOT or
@@ -1558,7 +1563,8 @@ processImport( Context *  context,
             {
                 // This is DOT ... DOT
                 lastFromPart = fromPartBegin;
-                while ( (lastFromPart+1)->n_type == DOT )
+                while ( (lastFromPart+1)->n_type == DOT ||
+                        (lastFromPart+1)->n_type == ELLIPSIS )
                     ++lastFromPart;
             }
             else
