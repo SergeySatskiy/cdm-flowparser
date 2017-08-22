@@ -1,5 +1,5 @@
-<ControlFlow [0:570] (1,1) (20,28)
- Body: [0:570] (1,1) (20,28)
+<ControlFlow [0:618] (1,1) (22,19)
+ Body: [0:618] (1,1) (22,19)
  LeadingComment: None
  SideComment: None
  LeadingCMLComments: n/a
@@ -680,6 +680,78 @@
          Decorators: n/a
          Suite: <CodeBlock [567:570] (20,25) (20,28)
                  Body: [567:570] (20,25) (20,28)
+                 LeadingComment: None
+                 SideComment: None
+                 LeadingCMLComments: n/a
+                 SideCMLComments: n/a
+                >
+        >
+        <Function [572:598] (21,1) (21,27)
+         Body: [572:593] (21,1) (21,22)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+         Async: None
+         Def: [572:574] (21,1) (21,3)
+         Name: [576:578] (21,5) (21,7)
+         Arguments: [579:592] (21,8) (21,21)
+         ArgList: <Argument [580:580] (21,9) (21,9)
+                   Name: [580:580] (21,9) (21,9)
+                   Annotation: None
+                   Separator: None
+                   defaultValue: None
+                  >
+                  <Argument [583:583] (21,12) (21,12)
+                   Name: [583:583] (21,12) (21,12)
+                   Annotation: None
+                   Separator: None
+                   defaultValue: None
+                  >
+                  <Argument [586:591] (21,15) (21,20)
+                   Name: [586:586] (21,15) (21,15)
+                   Annotation: None
+                   Separator: [587:587] (21,16) (21,16)
+                   defaultValue: [588:591] (21,17) (21,20)
+                  >
+         Annotation: None
+         Docstring: None
+         Decorators: n/a
+         Suite: <CodeBlock [595:598] (21,24) (21,27)
+                 Body: [595:598] (21,24) (21,27)
+                 LeadingComment: None
+                 SideComment: None
+                 LeadingCMLComments: n/a
+                 SideCMLComments: n/a
+                >
+        >
+        <Function [600:618] (22,1) (22,19)
+         Body: [600:613] (22,1) (22,14)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+         Async: None
+         Def: [600:602] (22,1) (22,3)
+         Name: [604:606] (22,5) (22,7)
+         Arguments: [607:612] (22,8) (22,13)
+         ArgList: <Argument [608:608] (22,9) (22,9)
+                   Name: [608:608] (22,9) (22,9)
+                   Annotation: None
+                   Separator: None
+                   defaultValue: None
+                  >
+                  <Argument [611:611] (22,12) (22,12)
+                   Name: [611:611] (22,12) (22,12)
+                   Annotation: None
+                   Separator: None
+                   defaultValue: None
+                  >
+         Annotation: None
+         Docstring: None
+         Decorators: n/a
+         Suite: <CodeBlock [615:618] (22,16) (22,19)
+                 Body: [615:618] (22,16) (22,19)
                  LeadingComment: None
                  SideComment: None
                  LeadingCMLComments: n/a

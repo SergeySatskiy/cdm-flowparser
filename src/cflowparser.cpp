@@ -1970,24 +1970,43 @@ processFunctionArgument( Context *      context,
                          node *         arguments,
                          int            index)
 {
-    // One of three cases here:
+    // One of the cases here:
     // - regular argument (name [+ annot] [+default])
     // - STAR (* name [+ annot])
     // - DOUBLESTAR (* name [ + annot])
+    // - STAR (*)
 
     node *      tfpdefNode( & arguments->n_child[ index ] );
     node *      argBegin( tfpdefNode );
-    if ( tfpdefNode->n_type == STAR || tfpdefNode->n_type == DOUBLESTAR )
+    node *      nameNode( argBegin );
+    if ( tfpdefNode->n_type == STAR )
+    {
+        // Step further only if there is a following tfpdef node
+        if ( index + 1 < arguments->n_nchildren )
+        {
+            node *  nextNode = & arguments->n_child[ index + 1 ];
+            if ( nextNode->n_type == tfpdef )
+            {
+                ++index;
+                tfpdefNode = nextNode;
+            }
+        }
+    }
+    else if ( tfpdefNode->n_type == DOUBLESTAR )
     {
         ++index;
         tfpdefNode = & arguments->n_child[ index ];
     }
 
+    if ( tfpdefNode->n_type == tfpdef )
+    {
+        // The NAME node is always the first child of the tfpdef node
+        nameNode = & tfpdefNode->n_child[ 0 ];
+    }
+
     Argument *      arg( new Argument );
     arg->parent = func;
 
-    // The NAME node is always the first child of the tfpdef node
-    node *      nameNode( & tfpdefNode->n_child[ 0 ] );
     Fragment *  name( new Fragment );
     name->parent = arg;
     updateBegin( name, argBegin, context->lineShifts );
