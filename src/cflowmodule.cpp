@@ -30,7 +30,7 @@
 
 
 CDMControlFlowModule::CDMControlFlowModule() :
-    Py::ExtensionModule< CDMControlFlowModule >( "cdmcf" )
+    Py::ExtensionModule< CDMControlFlowModule >( "cdmcfparser" )
 {
     Fragment::initType();
     BangLine::initType();
@@ -245,16 +245,16 @@ extern "C" void initcdmcf_d()
     initcdmcf();
 }
 #else
-extern "C" PyObject *  PyInit_cdmcf()
+extern "C" PyObject *  PyInit_cdmcfparser()
 {
     CDMControlFlow = new CDMControlFlowModule;
     return CDMControlFlow->module().ptr();
 }
 
 // symbol required for the debug version
-extern "C" PyObject *  PyInit_cdmcf_d()
+extern "C" PyObject *  PyInit_cdmcfparser_d()
 {
-    return PyInit_cdmcf();
+    return PyInit_cdmcfparser();
 }
 
 #endif

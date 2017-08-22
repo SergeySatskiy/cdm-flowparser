@@ -53,7 +53,7 @@ all: $(CDM_SRC_FILES) $(CDM_INC_FILES) $(PYCXX_SRC_FILES)
 	g++ -o comments comments.cpp cflowcomments.cpp
 
 clean:
-	rm -rf *.o core.* *.pyc tree comments ../build ../cdmcf.so
+	rm -rf *.o core.* *.pyc tree comments ../build ../cdmcfparser.so
 
 check:
 	PYTHONPATH=../:${PYTHONPATH} ../tests/ut.py
