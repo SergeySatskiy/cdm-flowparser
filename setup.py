@@ -19,7 +19,8 @@
 #
 
 
-import os
+import sys
+import os.path
 from setuptools import setup, Extension
 
 description = 'Python language control flow parser. ' \
@@ -71,7 +72,7 @@ setup(name='cdmcfparser',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: GNU General Public License (GPL)',
             'Operating System :: POSIX :: Linux',
-            'Programming Language :: C',
+            'Programming Language :: C++',
             'Programming Language :: Python :: 3',
             'Topic :: Software Development :: Libraries :: Python Modules'],
        platforms=['any'],

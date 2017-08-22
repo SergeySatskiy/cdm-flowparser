@@ -2,5 +2,10 @@ include cdmcfparserversion.py
 include README.md
 include LICENSE
 include ChangeLog
+include src/*.hpp
+include thirdparty/pycxx/Src/Python3/*.*
+include thirdparty/pycxx/CXX/*.hxx
+include thirdparty/pycxx/CXX/*.h
+include thirdparty/pycxx/CXX/Python3/*.*
 include tests/*.py
 include tests/*.ok
