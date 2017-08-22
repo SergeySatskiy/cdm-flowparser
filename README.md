@@ -34,12 +34,98 @@ make localinstall
 ```
 
 
+## Python 3: Visualizing Parsed Data
+Suppose there is ~/my-file.py file with the following content:
+```python
+#!/bin/env python
+import sys
+
+# I like comments
+a = 154
+for x in range(a):
+    print("x = " + str(x))
+
+sys.exit(0)
+```
+
+Then you can run a test utility (if you have a local [repository](https://github.com/SergeySatskiy/cdm-flowparser) clone):
+
+```shell
+~/cdm-flowparser/utils/run.py ~/my-file.py
+```
+
+The output will be the following:
+
+```
+Running control flow parser version: trunk
+Module location: /home/swift/cdm-flowparser/cdmcfparser.cpython-35m-x86_64-linux-gnu.so
+<ControlFlow [0:113] (1,1) (9,11)
+ Body: [18:113] (2,1) (9,11)
+ LeadingComment: None
+ SideComment: None
+ LeadingCMLComments: n/a
+ SideCMLComments: n/a
+ isOK: true
+ Errors: n/a
+ Warnings: n/a
+ BangLine: [0:16] (1,1) (1,17)
+ EncodingLine: None
+ Docstring: None
+ Suite: <Import [18:27] (2,1) (2,10)
+         Body: [18:27] (2,1) (2,10)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+         FromPart: None
+         WhatPart: [25:27] (2,8) (2,10)
+        >
+        <CodeBlock [30:54] (4,1) (5,7)
+         Body: [48:54] (5,1) (5,7)
+         LeadingComment: <Comment [30:46] (4,1) (4,17)
+                          Parts: <Fragment [30:46] (4,1) (4,17)
+                                 >
+                         >
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+        >
+        <For [56:100] (6,1) (7,26)
+         Body: [56:73] (6,1) (6,18)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+         Async: None
+         For: [56:58] (6,1) (6,3)
+         Iteration: [60:72] (6,5) (6,17)
+         Suite: <CodeBlock [79:100] (7,5) (7,26)
+                 Body: [79:100] (7,5) (7,26)
+                 LeadingComment: None
+                 SideComment: None
+                 LeadingCMLComments: n/a
+                 SideCMLComments: n/a
+                >
+         ElsePart: None
+        >
+        <CodeBlock [103:113] (9,1) (9,11)
+         Body: [103:113] (9,1) (9,11)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+        >
+>
+```
+
+
+
 ## Python 2 Installation and Building
 **Attention:** Python 2 version is not supported anymore.
-There will be no more Python 2 release.
+There will be no more Python 2 releases.
 
 The latest Python 2 release is 1.0.1. Both pre-built modules and
-source code are available in the github releases area on github:
+source code are available in the releases area on github:
 [latest Python 2 release 1.0.1](https://github.com/SergeySatskiy/cdm-flowparser/releases/tag/v1.0.1).
 
 To build a Python 2 module from sources please follow these steps:
@@ -56,9 +142,7 @@ make check
 ```
 
 
-## Visualizing Parsed Data
-**Note:** the example output is provided for the Python 2 module. The output of the Python 3 module may be slightly different as more information is extracted. However, conceptually pretty much the same information is provided for both Python 2 and 3 implementations.
-
+## Python 2: Visualizing Parsed Data
 Suppose there is the following file ~/my-file.py with the following content:
 ```python
 #!/usr/bin/python
@@ -135,15 +219,24 @@ Running control flow parser version: trunk
 >
 ```
 
-## Usage
+## Under the Hood
 
-Basically the 'run.py' utility has the following essential lines
+Basically the 'run.py' utility has the following essential lines for the example above:
 
 ```python
-from cdmcf import getControlFlowFromFile
-controlFlow = getControlFlowFromFile( "my-file.py" )
+from cdmcfparser import getControlFlowFromFile
+controlFlow = getControlFlowFromFile("my-file.py")
 
 # Serializes nicely the controlFlow object
 # See the run.py for the details of how it is done
 ```
 
+The run.py is available in a local clone at ~/cdm-flowparser/utils/run.py or
+you can see the source code [online](https://github.com/SergeySatskiy/cdm-flowparser/blob/master/utils/run.py)
+
+
+## Essential Links
+- [Codimension Python IDE](http://codimension.org) home page
+- [latest Python 2 release 1.0.1](https://github.com/SergeySatskiy/cdm-flowparser/releases/tag/v1.0.1)
+- [Python 3 Pypi package](https://pypi.python.org/pypi?name=cdmcfparser&:action=display) page
+- [Visualization Technology](http://codimension.org/documentation/visualization-technology/python-code-visualization.html)
