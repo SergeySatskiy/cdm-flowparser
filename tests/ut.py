@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 #
 # codimension - graphics python two-way code editor and analyzer
-# Copyright (C) 2010  Sergey Satskiy <sergey.satskiy@gmail.com>
+# Copyright (C) 2010-2017  Sergey Satskiy <sergey.satskiy@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,19 +17,17 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
-# $Id$
-#
 
-" Unit tests for the python control flow parser "
+"""Unit tests for the python control flow parser"""
 
 from __future__ import print_function
 
 import unittest
 import os.path
 import sys
-import cdmcf
-from cdmcf import ( getControlFlowFromMemory,
-                    getControlFlowFromFile, VERSION )
+import cdmcfparser
+from cdmcfparser import (getControlFlowFromMemory,
+                         getControlFlowFromFile, VERSION)
 
 
 def formatFlow( s ):
@@ -456,7 +454,6 @@ class CDMControlFlowParserTest( unittest.TestCase ):
 
 # Run the unit tests
 if __name__ == '__main__':
-    print( "Testing control flow parser version: " + VERSION )
-    print( "Module location: " + cdmcf.__file__ )
+    print("Testing control flow parser version: " + VERSION)
+    print("Module location: " + cdmcfparser.__file__)
     unittest.main()
-

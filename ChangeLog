@@ -1,3 +1,9 @@
+2017 Aug 21 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.0.0.
+* Python 3 support (3.5/3.6)
+* pip installable
+
 2016 Jul 11  Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Changes in the package building procedure. Release 1.0.1

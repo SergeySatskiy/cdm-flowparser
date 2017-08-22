@@ -1,18 +1,30 @@
-[![Build Status](https://travis-ci.org/SergeySatskiy/cdm-flowparser.svg?branch=master)](https://travis-ci.org/SergeySatskiy/cdm-flowparser)
-# cdm-flowparser
-cdm-flowparser project is a Python 2  and 3 extension module.
-It takes a file with a python code (or a character buffer), parses it and
-provides back a hierarchical representation of the code in terms of fragments.
-Each fragment describes a portion of the input content:
-a start point (line, column and absolute position) plus an end point (line, column and absolute position).
+## cdm-flowparser [![Build Status](https://travis-ci.org/SergeySatskiy/cdm-flowparser.svg?branch=master)](https://travis-ci.org/SergeySatskiy/cdm-flowparser)
+[cdm-flowparser project](https://github.com/SergeySatskiy/cdm-flowparser)
+is a Python 3 (Python 2 support is limited) extension module.
+The module provided functions can takes a file with a python code or a character buffer,
+parse it and provide back a hierarchical representation of the code in terms of fragments.
+Each fragment describes a portion of the input:
+a start point (line, column and absolute position) plus an end point
+(line, column and absolute position).
 
 Comments are preserved too.
 
-The parser is used in the [Codimension Python IDE](http://codimension.org) to generate a flowchart like diagrams for an arbitrary
-Python code as the user types it. Basically the IDE detects a pause in typing and regenerates the diagram.
+The module is used in the [Codimension Python IDE](http://codimension.org) to
+generate a flowchart-like diagrams for an arbitrary Python code as the user
+types it. Basically the IDE detects a pause in typing and regenerates the diagram.
 
-## Python 3
-The master branch contains code for Python 3 (3.5 grammar is covered). There are no releases built yet however the code is quite stable. If you like to have a Python 3 module please follow these steps:
+## Python 3 Installation and Building
+The [master branch](https://github.com/SergeySatskiy/cdm-flowparser) contains code for Python 3 (3.5/3.6 grammar is covered).
+
+The module can be installed using pip:
+
+```shell
+pip install cdmcfparser
+```
+
+You can also retrieve the full source code which in addition has some utilities.
+In order to do that you can follow these steps:
+
 ```shell
 git clone https://github.com/SergeySatskiy/cdm-flowparser.git
 cd cdm-flowparser
@@ -21,8 +33,17 @@ make check
 make localinstall
 ```
 
-## Python 2
-The latest Python 2 supporting release is 1.0.1. Both pre-built modules and source code are available in the releases area. Here is a link: [latest Python 2 release 1.0.1](https://github.com/SergeySatskiy/cdm-flowparser/releases/tag/v1.0.1). If you like to build a python 2 module from sources please follow these steps:
+
+## Python 2 Installation and Building
+**Attention:** Python 2 version is not supported anymore.
+There will be no more Python 2 release.
+
+The latest Python 2 release is 1.0.1. Both pre-built modules and
+source code are available in the github releases area on github:
+[latest Python 2 release 1.0.1](https://github.com/SergeySatskiy/cdm-flowparser/releases/tag/v1.0.1).
+
+To build a Python 2 module from sources please follow these steps:
+
 ```shell
 cd
 wget https://github.com/SergeySatskiy/cdm-flowparser/archive/v1.0.1.tar.gz
@@ -34,7 +55,8 @@ make localinstall
 make check
 ```
 
-## Visualizing parsed data
+
+## Visualizing Parsed Data
 **Note:** the example output is provided for the Python 2 module. The output of the Python 3 module may be slightly different as more information is extracted. However, conceptually pretty much the same information is provided for both Python 2 and 3 implementations.
 
 Suppose there is the following file ~/my-file.py with the following content:
