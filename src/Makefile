@@ -1,7 +1,7 @@
 #
 # cdm-flowparser - python control flow parser used in Codimension to
 # automatically generate a flowchart like diagram
-# Copyright (C) 2010 - 2016  Sergey Satskiy <sergey.satskiy@gmail.com>
+# Copyright (C) 2010 - 2017  Sergey Satskiy <sergey.satskiy@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -25,14 +25,31 @@
 
 .PHONY: all clean check
 
+
+# The python-config is not a very reliable choice to get the compiler
+# flags information. The name may depend from an interpreter version, e.g. it
+# could be python3-config or it could be picked system wide but not from a
+# virtual environment. So instead a python interpreter itself is used.
+
 VERSION=${CDM_PROJECT_BUILD_VERSION:-trunk}
 
-PYTHON_INCLUDE=$(shell python-config --includes)
-PYTHON_LIBS=$(shell python-config --ldflags)
+PYTHON_INCLUDE=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_inc())')
 PYTHON_LIBS_PATH=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("LIBDIR"))')
 PYCXX_DIR=../thirdparty/pycxx
 PYCXX_INCLUDE=-I${PYCXX_DIR} -I${PYCXX_DIR}/Src
 INCLUDE=${PYCXX_INCLUDE} ${PYTHON_INCLUDE}
+
+# Typical python-config --ldflags output:
+# -lpython3.5m -lpthread -ldl -lutil -lm -Xlinker -export-dynamic
+
+# This will produce: -Xlinker -export-dynamic
+LINK_FOR_SHARED=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("LINKFORSHARED"))')
+
+# This will produce: -lpthread -ldl  -lutil
+LIBS=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("LIBS"))')
+
+# This will produce: -L. -lpython3.5m
+BLD_LIBRARY=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("BLDLIBRARY"))')
 
 VERSION_DEFINES=-DCDM_CF_PARSER_VERSION=\"${VERSION}\"
 FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES} -Wl,-rpath=${PYTHON_LIBS_PATH}
@@ -49,7 +66,7 @@ CDM_INC_FILES=cflowmodule.hpp cflowfragments.hpp cflowutils.hpp cflowparser.hpp 
 
 all: $(CDM_SRC_FILES) $(CDM_INC_FILES) $(PYCXX_SRC_FILES)
 	cd .. && CDM_PROJECT_BUILD_VERSION=$(CDM_PROJECT_BUILD_VERSION) python setup.py build_ext --inplace
-	g++ ${FLAGS} -o tree  tree.cpp ${PYTHON_INCLUDE} -L${PYTHON_LIBS_PATH} ${PYTHON_LIBS}
+	g++ ${FLAGS} -o tree  tree.cpp -I${PYTHON_INCLUDE} -L${PYTHON_LIBS_PATH} ${BLD_LIBRARY} ${LIBS} ${LINK_FOR_SHARED}
 	g++ -o comments comments.cpp cflowcomments.cpp
 
 clean:
