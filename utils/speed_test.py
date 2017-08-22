@@ -52,7 +52,7 @@ def cdmcfparserTest(files):
     """Loop for the codimension parser"""
     count = 0
     for item in files:
-        print("Processing " + item + " ...")
+        # print("Processing " + item + " ...")
         tempObj = getControlFlowFromFile(item)
         count += 1
     print("cdmcf: processed " + str(count) + " file(s)")
