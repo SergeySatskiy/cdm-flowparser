@@ -99,5 +99,6 @@ python setup.py develop --uninstall
 ## Links
 
 [Peter Downs instructions](http://peterdowns.com/posts/first-time-with-pypi.html)
+
 [Ewen Cheslack-Postava instructions](https://ewencp.org/blog/a-brief-introduction-to-packaging-python/)
 
