@@ -21,7 +21,7 @@
 
 import sys
 import os.path
-import distutils
+import platform
 from setuptools import setup, Extension
 
 description = 'Python language control flow parser. ' \
@@ -58,7 +58,7 @@ except:
 
 
 extraLinkArgs = None
-if 'g++' in distutils.sysconfig.get_config_var('CXX').lower():
+if platform.system().lower() == 'linux':
     # On some systems there are many compilers installed and a wrong version of
     # the libstdc++ may be picked up at run-time. So it is safer to link it
     # statically. The overall size is obviously increased but not dramatically.

@@ -1,3 +1,8 @@
+2017 Oct 27 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.0.1
+* Link libstdc++ statically - on some systems it might not be picked properly
+
 2017 Aug 22 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.0.0.
