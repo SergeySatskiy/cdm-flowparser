@@ -21,6 +21,7 @@
 
 import sys
 import os.path
+import distutils
 from setuptools import setup, Extension
 
 description = 'Python language control flow parser. ' \
@@ -54,6 +55,14 @@ except:
     # pandoc is not installed, fallback to using raw contents
     with io.open('README.md', encoding='utf-8') as f:
         long_description = f.read()
+
+
+extraLinkArgs = None
+if 'g++' in distutils.sysconfig.get_config_var('CXX').lower():
+    # On some systems there are many compilers installed and a wrong version of
+    # the libstdc++ may be picked up at run-time. So it is safer to link it
+    # statically. The overall size is obviously increased but not dramatically.
+    extraLinkArgs = ['-static-libstdc++']
 
 
 # install_requires=['pypandoc'] could be added but really it needs to only
@@ -126,4 +135,5 @@ setup(name='cdmcfparser',
                                                   '-ffast-math',
                                                   '-O2',
                                                   '-DPYCXX_PYTHON_2TO3'],
+                              extra_link_args=extraLinkArgs,
                              )])
