@@ -28,7 +28,7 @@ chmod 600 ~/.pypirc
 
 1. Update ChangeLog
 2. Make sure git clone is clean
-3. Create `cdmcfparserversion.py` file as follows:
+3. Update the `cdmcfparserversion.py` file with the new version:
 ```python
 version = '2.0.0'
 ```
@@ -74,16 +74,12 @@ cd ~/cdm-flowparser/tests
 cd ~/cdm-flowparser/utils
 ./speed_test.py
 ```
-16. Remove `cdmcfparserversion.py`
-```shell
-rm cdmcfparserversion.py
-```
-17. Create an annotated tag
+16. Create an annotated tag
 ```shell
 git tag -a 2.0.0 -m "Release 2.0.0"
 git push --tags
 ```
-18. Publish the release on github at [releases](https://github.com/SergeySatskiy/cdm-flowparser/releases)
+17. Publish the release on github at [releases](https://github.com/SergeySatskiy/cdm-flowparser/releases)
 
 
 ## Development

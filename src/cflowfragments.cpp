@@ -1099,15 +1099,35 @@ Py::Object  Docstring::getDisplayValue( const Py::Tuple &  args )
 
     Fragment *      bodyFragment( static_cast<Fragment *>(body.ptr()) );
     std::string     rawContent( bodyFragment->getContent( bufPointer ) );
-    size_t          stripCount( 1 );
+    size_t          stripFrontCount( 1 );
+    size_t          stripBackCount( 1 );
+
     if ( strncmp( rawContent.c_str(), "'''", 3 ) == 0 ||
          strncmp( rawContent.c_str(), "\"\"\"", 3 ) == 0 )
-        stripCount = 3;
+    {
+        stripFrontCount = 3;
+        stripBackCount = 3;
+    }
+    else if ( strncmp( rawContent.c_str(), "r'''", 4 ) == 0 ||
+              strncmp( rawContent.c_str(), "r\"\"\"", 4 ) == 0 ||
+              strncmp( rawContent.c_str(), "u'''", 4 ) == 0 ||
+              strncmp( rawContent.c_str(), "u\"\"\"", 4 ) == 0 )
+    {
+        stripFrontCount = 4;
+        stripBackCount = 3;
+    }
+    else if ( strncmp( rawContent.c_str(), "r'", 2 ) == 0 ||
+              strncmp( rawContent.c_str(), "r\"", 2 ) == 0 ||
+              strncmp( rawContent.c_str(), "u'", 2 ) == 0 ||
+              strncmp( rawContent.c_str(), "u\"", 2 ) == 0 )
+    {
+        stripFrontCount = 2;
+    }
 
     return Py::String( trimDocstring(
                             rawContent.substr(
-                                stripCount,
-                                rawContent.length() - stripCount * 2 ) ) );
+                                stripFrontCount,
+                                rawContent.length() - stripFrontCount - stripBackCount ) ) );
 }
 
 
