@@ -1771,7 +1771,16 @@ checkForSysExit( Context *          context,
     if ( tree->n_type != small_stmt )
         return NULL;
 
-    node *      powerNode( skipToNode( tree, power ) );
+    // Note: the python grammar has been changed between 3.4 and 3.5
+    // 3.4 and lower had the 'power' node preceeding the 'atom' node.
+    // The newer versions have a new 'atom_expr' node. So there is a
+    // define here; the variable name is kept as 'powerNode' though
+    // in python > 3.5 the name atomExprNode would fit better.
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION >= 5
+        node *      powerNode( skipToNode( tree, atom_expr ) );
+    #else
+        node *      powerNode( skipToNode( tree, power ) );
+    #endif
     if ( powerNode == NULL )
         return NULL;
 

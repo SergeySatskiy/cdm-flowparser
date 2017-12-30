@@ -1,3 +1,8 @@
+2017 Dec 29 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.0.3
+* Bug fix: proper handling of sys.exit() for python 3.5 and newer
+
 2017 Nov 17 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.0.2
