@@ -46,7 +46,7 @@
          Parts: <Fragment [159:168] (12,16) (12,25)
                 >
         >
-        <Function [171:252] (14,1) (18,31)
+        <Function [171:265] (14,1) (20,11)
          Body: [171:178] (14,1) (14,8)
          LeadingComment: None
          SideComment: None
@@ -76,10 +76,9 @@
                             >
                     >
          Decorators: n/a
-         Suite: n/a
-        >
-        <Comment [259:265] (20,5) (20,11)
-         Parts: <Fragment [259:265] (20,5) (20,11)
+         Suite: <Comment [259:265] (20,5) (20,11)
+                 Parts: <Fragment [259:265] (20,5) (20,11)
+                        >
                 >
         >
 >

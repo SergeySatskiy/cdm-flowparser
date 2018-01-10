@@ -154,19 +154,19 @@ CDMControlFlowModule::getControlFlowFromMemory( const Py::Tuple &  args )
 
     std::string     content;
     content.reserve( codeSize + 2 );
-    content = code.as_std_string( "utf-8" );
 
-    // Just in case if there were multibyte characters and
-    // the size has been increased
-    codeSize = content.size();
-    if ( content[ codeSize - 1 ] != '\n' )
-        content += "\n";
+    // By some reasons the python parser is very sensitive to the end of the
+    // file. It needs a complete empty line at the end of the content with
+    // trailing LF. It is specifically important for trailing comments for a
+    // scope. Weird, but there is a simple solution: add two LF at the end of
+    // the content unconditionally. It will not harm anyway.
+    content = code.as_std_string( "utf-8" ) + "\n\n";
 
     if ( makeCopy )
     {
-        char *      copy = new char[ content.size() + 1 ];
-        strncpy( copy, content.c_str(), content.size() + 1 );
-        return parseInput( copy, "dummy.py", true );
+        char *      contentCopy = new char[ content.size() + 1 ];
+        strncpy( contentCopy, content.c_str(), content.size() + 1 );
+        return parseInput( contentCopy, "dummy.py", true );
     }
     return parseInput( content.c_str(), "dummy.py", false );
 }
@@ -204,9 +204,14 @@ CDMControlFlowModule::getControlFlowFromFile( const Py::Tuple &  args )
     struct stat     st;
     stat( fileName.c_str(), &st );
 
+    // By some reasons the python parser is very sensitive to the end of the
+    // file. It needs a complete empty line at the end of the content with
+    // trailing LF. It is specifically important for trailing comments for a
+    // scope. Weird, but there is a simple solution: add two LF at the end of
+    // the content unconditionally. It will not harm anyway.
     if ( st.st_size > 0 )
     {
-        buffer = new char[ st.st_size + 2 ];
+        buffer = new char[ st.st_size + 3 ];
 
         int             elem = fread( buffer, st.st_size, 1, f );
 
@@ -217,7 +222,8 @@ CDMControlFlowModule::getControlFlowFromFile( const Py::Tuple &  args )
         }
 
         buffer[ st.st_size ] = '\n';
-        buffer[ st.st_size + 1 ] = '\0';
+        buffer[ st.st_size + 1 ] = '\n';
+        buffer[ st.st_size + 2 ] = '\0';
         return parseInput( buffer, fileName.c_str(), true );
     }
 

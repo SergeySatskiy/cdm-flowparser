@@ -76,10 +76,9 @@
                             >
                     >
          Decorators: n/a
-         Suite: n/a
-        >
-        <Comment [259:265] (20,5) (20,11)
-         Parts: <Fragment [259:265] (20,5) (20,11)
+         Suite: <Comment [259:265] (20,5) (20,11)
+                 Parts: <Fragment [259:265] (20,5) (20,11)
+                        >
                 >
         >
 >

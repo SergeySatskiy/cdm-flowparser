@@ -42,13 +42,13 @@ void throwWrongBufArgument( const char *  funcName )
 
 
 // Convenience macros
-#define GETINTATTR( member )                            \
-    do { if ( strcmp( attrName, STR( member ) ) == 0 )  \
-         { retval = PYTHON_INT_TYPE( member );          \
+#define GETINTATTR( member )                                   \
+    do { if ( strcmp( attrName, CDM_CF_STR( member ) ) == 0 )  \
+         { retval = PYTHON_INT_TYPE( member );                 \
            return true; } } while ( 0 )
-#define GETBOOLATTR( member )                           \
-    do { if ( strcmp( attrName, STR( member ) ) == 0 )  \
-         { retval = Py::Boolean( member );              \
+#define GETBOOLATTR( member )                                  \
+    do { if ( strcmp( attrName, CDM_CF_STR( member ) ) == 0 )  \
+         { retval = Py::Boolean( member );                     \
            return true; } } while ( 0 )
 
 

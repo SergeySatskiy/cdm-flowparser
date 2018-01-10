@@ -1,3 +1,9 @@
+2018 Jan 09 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.1.0
+* Scope trailing comments support. It is specifically important for groups when
+  a group end matches a scope end
+
 2017 Dec 29 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.0.3

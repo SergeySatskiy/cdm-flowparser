@@ -22,6 +22,9 @@
 #define CFLOWFRAGMENTS_HPP
 
 
+#include <Python.h>
+#include <node.h>
+
 #include <set>
 
 #include "CXX/Objects.hxx"
@@ -692,6 +695,12 @@ struct Context
     int *                           lineShifts;
     std::deque< CommentLine > *     comments;
     std::set< std::string >         sysExit;
+    Docstring *                     lastDocstring;
+
+    // These vectors must be in sync; they are used to properly collect
+    // trailing comments
+    std::vector< Py::List * >       flowStack;
+    std::vector< node * >           nodeStack;
 };
 
 #endif

@@ -126,10 +126,15 @@ class CDMControlFlowParserTest(unittest.TestCase):
         content = f.read()
         f.close()
 
-        controlFlow = getControlFlowFromMemory(content)
-        if controlFlow.isOK != expectedOK:
+        controlFlowMemory = getControlFlowFromMemory(content)
+        if controlFlowMemory.isOK != expectedOK:
             self.fail("Error parsing the file " + pythonFile +
                       ". Option: from memory.")
+
+        #if formatFlow(str(controlFlow)) != formatFlow(str(controlFlowMemory)):
+        #    print('Memory:\n' + formatFlow(str(controlFlowMemory)))
+        #    print('File:\n' + formatFlow(str(controlFlow)))
+        #    self.fail("Control flow from memory differs the one from file")
 
         outFileName = pythonFile.replace(".py", ".out")
         outFile = open(outFileName, "w")

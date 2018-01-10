@@ -31,6 +31,7 @@
 #include <list>
 
 #include "cflowparser.hpp"
+#include "cflowfragmenttypes.hpp"
 #include "cflowfragments.hpp"
 #include "cflowcomments.hpp"
 #include "cflowutils.hpp"
@@ -504,6 +505,146 @@ addLeadingCMLComment( Context *  context,
 }
 
 
+static void
+injectOneLeadingComment( Context *  context,
+                         Py::List &  flow,
+                         FragmentBase *  flowAsParent,
+                         FragmentWithComments *  statement, // could be NULL
+                         FragmentBase *  statementAsParent, // could be NULL
+                         int  firstStatementLine,
+                         bool  consumeAllAsLeading,
+                         int  leadingLastLine )
+{
+    CMLComment *    leadingCML = NULL;
+    Comment *       leading = NULL;
+
+    while ( ! context->comments->empty() )
+    {
+        CommentLine &       comment = context->comments->front();
+        if ( comment.line > leadingLastLine )
+            break;
+
+        if ( comment.type == CML_COMMENT )
+        {
+            if ( leadingCML != NULL )
+            {
+                addLeadingCMLComment( context, leadingCML,
+                                      leadingLastLine, firstStatementLine,
+                                      statementAsParent, statement,
+                                      flowAsParent, flow );
+                leadingCML = NULL;
+            }
+
+            Fragment *      part( createCommentFragment( comment ) );
+            if ( leadingLastLine + 1 == firstStatementLine ||
+                 consumeAllAsLeading )
+                part->parent = statementAsParent;
+            else
+                part->parent = flowAsParent;
+
+            leadingCML = new CMLComment;
+            leadingCML->updateBeginEnd( part );
+            leadingCML->parts.append( Py::asObject( part ) );
+        }
+
+
+        if ( comment.type == CML_COMMENT_CONTINUE )
+        {
+            if ( leadingCML == NULL )
+            {
+                // Bad thing: someone may deleted the proper
+                // cml comment beginning so the comment is converted into a
+                // regular one. The regular comment will be handled below.
+                context->flow->addWarning( comment.line, -1,
+                                           "Continue of the CML comment "
+                                           "without the beginning. "
+                                           "Treat it as a regular comment." );
+                comment.type = REGULAR_COMMENT;
+            }
+            else
+            {
+                if ( leadingCML->endLine + 1 != comment.line )
+                {
+                    // Bad thing: whether someone deleted the beginning of
+                    // the cml comment or inserted an empty line between.
+                    // So convert the comment into a regular one.
+                    context->flow->addWarning( comment.line, -1,
+                                               "Continue of the CML comment "
+                                               "without the beginning. "
+                                               "Treat it as a regular comment." );
+                    comment.type = REGULAR_COMMENT;
+                }
+                else
+                {
+                    Fragment *      part( createCommentFragment( comment ) );
+                    if ( leadingLastLine + 1 == firstStatementLine ||
+                         consumeAllAsLeading )
+                        part->parent = statementAsParent;
+                    else
+                        part->parent = flowAsParent;
+
+                    leadingCML->updateEnd( part );
+                    leadingCML->parts.append( Py::asObject( part ) );
+                }
+            }
+        }
+
+        if ( comment.type == REGULAR_COMMENT )
+        {
+            if ( leadingCML != NULL )
+            {
+                addLeadingCMLComment( context, leadingCML,
+                                      leadingLastLine, firstStatementLine,
+                                      statementAsParent, statement,
+                                      flowAsParent, flow );
+                leadingCML = NULL;
+            }
+
+            Fragment *      part( createCommentFragment( comment ) );
+            if ( leadingLastLine + 1 == firstStatementLine ||
+                 consumeAllAsLeading )
+                part->parent = statementAsParent;
+            else
+                part->parent = flowAsParent;
+
+            if ( leading == NULL )
+            {
+                leading = new Comment;
+                leading->updateBegin( part );
+            }
+            leading->parts.append( Py::asObject( part ) );
+            leading->updateEnd( part );
+        }
+
+        context->comments->pop_front();
+    }
+
+    if ( leadingCML != NULL )
+    {
+        addLeadingCMLComment( context, leadingCML,
+                              leadingLastLine, firstStatementLine,
+                              statementAsParent, statement,
+                              flowAsParent, flow );
+        leadingCML = NULL;
+    }
+    if ( leading != NULL )
+    {
+        if ( leadingLastLine + 1 == firstStatementLine ||
+             consumeAllAsLeading )
+        {
+            statementAsParent->updateBeginEnd( leading );
+            statement->leadingComment = Py::asObject( leading );
+        }
+        else
+        {
+            flowAsParent->updateBeginEnd( leading );
+            flow.append( Py::asObject( leading ) );
+        }
+        leading = NULL;
+    }
+}
+
+
 
 static void
 injectLeadingComments( Context *  context,
@@ -519,134 +660,10 @@ injectLeadingComments( Context *  context,
 
     while ( leadingLastLine != -1 )
     {
-        CMLComment *    leadingCML = NULL;
-        Comment *       leading = NULL;
-
-        while ( ! context->comments->empty() )
-        {
-            CommentLine &       comment = context->comments->front();
-            if ( comment.line > leadingLastLine )
-                break;
-
-            if ( comment.type == CML_COMMENT )
-            {
-                if ( leadingCML != NULL )
-                {
-                    addLeadingCMLComment( context, leadingCML,
-                                          leadingLastLine, firstStatementLine,
-                                          statementAsParent, statement,
-                                          flowAsParent, flow );
-                    leadingCML = NULL;
-                }
-
-                Fragment *      part( createCommentFragment( comment ) );
-                if ( leadingLastLine + 1 == firstStatementLine ||
-                     consumeAllAsLeading )
-                    part->parent = statementAsParent;
-                else
-                    part->parent = flowAsParent;
-
-                leadingCML = new CMLComment;
-                leadingCML->updateBeginEnd( part );
-                leadingCML->parts.append( Py::asObject( part ) );
-            }
-
-
-            if ( comment.type == CML_COMMENT_CONTINUE )
-            {
-                if ( leadingCML == NULL )
-                {
-                    // Bad thing: someone may deleted the proper
-                    // cml comment beginning so the comment is converted into a
-                    // regular one. The regular comment will be handled below.
-                    context->flow->addWarning( comment.line, -1,
-                                               "Continue of the CML comment "
-                                               "without the beginning. "
-                                               "Treat it as a regular comment." );
-                    comment.type = REGULAR_COMMENT;
-                }
-                else
-                {
-                    if ( leadingCML->endLine + 1 != comment.line )
-                    {
-                        // Bad thing: whether someone deleted the beginning of
-                        // the cml comment or inserted an empty line between.
-                        // So convert the comment into a regular one.
-                        context->flow->addWarning( comment.line, -1,
-                                               "Continue of the CML comment "
-                                               "without the beginning. "
-                                               "Treat it as a regular comment." );
-                        comment.type = REGULAR_COMMENT;
-                    }
-                    else
-                    {
-                        Fragment *      part( createCommentFragment( comment ) );
-                        if ( leadingLastLine + 1 == firstStatementLine ||
-                             consumeAllAsLeading )
-                            part->parent = statementAsParent;
-                        else
-                            part->parent = flowAsParent;
-
-                        leadingCML->updateEnd( part );
-                        leadingCML->parts.append( Py::asObject( part ) );
-                    }
-                }
-            }
-
-            if ( comment.type == REGULAR_COMMENT )
-            {
-                if ( leadingCML != NULL )
-                {
-                    addLeadingCMLComment( context, leadingCML,
-                                          leadingLastLine, firstStatementLine,
-                                          statementAsParent, statement,
-                                          flowAsParent, flow );
-                    leadingCML = NULL;
-                }
-
-                Fragment *      part( createCommentFragment( comment ) );
-                if ( leadingLastLine + 1 == firstStatementLine ||
-                     consumeAllAsLeading )
-                    part->parent = statementAsParent;
-                else
-                    part->parent = flowAsParent;
-
-                if ( leading == NULL )
-                {
-                    leading = new Comment;
-                    leading->updateBegin( part );
-                }
-                leading->parts.append( Py::asObject( part ) );
-                leading->updateEnd( part );
-            }
-
-            context->comments->pop_front();
-        }
-
-        if ( leadingCML != NULL )
-        {
-            addLeadingCMLComment( context, leadingCML,
-                                  leadingLastLine, firstStatementLine,
-                                  statementAsParent, statement,
-                                  flowAsParent, flow );
-            leadingCML = NULL;
-        }
-        if ( leading != NULL )
-        {
-            if ( leadingLastLine + 1 == firstStatementLine ||
-                 consumeAllAsLeading )
-            {
-                statementAsParent->updateBeginEnd( leading );
-                statement->leadingComment = Py::asObject( leading );
-            }
-            else
-            {
-                flowAsParent->updateBeginEnd( leading );
-                flow.append( Py::asObject( leading ) );
-            }
-            leading = NULL;
-        }
-
+        injectOneLeadingComment( context, flow, flowAsParent,
+                                 statement, statementAsParent,
+                                 firstStatementLine, consumeAllAsLeading,
+                                 leadingLastLine );
         leadingLastLine = detectLeadingBlock( context, firstStatementLine );
     }
     return;
@@ -1875,6 +1892,8 @@ checkForSysExit( Context *          context,
 static Docstring *
 checkForDocstring( Context *  context, node *  tree )
 {
+    context->lastDocstring = NULL;
+
     if ( tree == NULL )
         return NULL;
 
@@ -1939,6 +1958,7 @@ checkForDocstring( Context *  context, node *  tree )
     }
 
     docstr->body = Py::asObject( body );
+    context->lastDocstring = docstr;
     return docstr;
 }
 
@@ -2521,6 +2541,72 @@ getStringFirstLine( node *  n )
 }
 
 
+static int
+getNextLineAfter( node *  start, int  lineNumber )
+{
+    for ( int  i = 0; i < start->n_nchildren; ++i )
+    {
+        node *      child = & ( start->n_child[ i ] );
+        if ( child->n_lineno > lineNumber )
+            return child->n_lineno;
+        int nestedLineNo = getNextLineAfter( child, lineNumber );
+        if ( nestedLineNo != INT_MAX )
+            return nestedLineNo;
+    }
+    return INT_MAX;
+}
+
+
+static void
+injectTrailingComments( Context *       context,
+                        FragmentBase *  parent,
+                        INT_TYPE        lastProcessedLine,
+                        INT_TYPE        blockShift )
+{
+    if ( context->comments->empty() )
+        return;
+
+    size_t      flowStackSize = context->flowStack.size();
+    if ( flowStackSize <= 1 )
+        return;     // That's the global scope
+
+    // find out a line number till which the comments should be checked.
+    // Limit line is searched in trees above.
+    int     nextStatementLine( INT_MAX );
+    int     treeLevel( flowStackSize - 2 );
+
+    while ( treeLevel >= 0 )
+    {
+        node *      upperTree = context->nodeStack[ treeLevel ];
+
+        nextStatementLine = getNextLineAfter( upperTree, lastProcessedLine );
+        if ( nextStatementLine != INT_MAX )
+            break;  // Found the limit line
+
+        --treeLevel;
+    }
+
+    Py::List *      flowToAddTo( context->flowStack[ flowStackSize - 1 ] );
+
+    // Add to the flow on top
+    while ( ! context->comments->empty() )
+    {
+        CommentLine &       comment = context->comments->front();
+        if ( comment.line >= nextStatementLine )
+            break;
+
+        if ( comment.pos < blockShift )
+            break;
+
+        int     leadingLastLine = detectLeadingBlock( context,
+                                                      nextStatementLine );
+
+        injectOneLeadingComment( context, *flowToAddTo, parent,
+                                 NULL, NULL, -1, false, leadingLastLine );
+    }
+}
+
+
 static FragmentBase *
 walk( Context *                    context,
       node *                       tree,
@@ -2531,6 +2617,9 @@ walk( Context *                    context,
     CodeBlock *         codeBlock = NULL;
     FragmentBase *      lastAdded = NULL;
     int                 statementCount = 0;
+
+    context->flowStack.push_back( &flow );
+    context->nodeStack.push_back( tree );
 
     for ( int  i = 0; i < tree->n_nchildren; ++i )
     {
@@ -2749,7 +2838,32 @@ walk( Context *                    context,
 
     // Add block if needed
     if ( codeBlock != NULL )
-        return addCodeBlock( context, & codeBlock, flow, parent );
+    {
+        lastAdded = addCodeBlock( context, & codeBlock, flow, parent );
+    }
+
+    // There could be trailing comments that belong to the upper level flow
+    if ( lastAdded == NULL )
+    {
+        if ( context->lastDocstring != NULL )
+        {
+            injectTrailingComments( context, parent,
+                                    context->lastDocstring->endLine,
+                                    context->lastDocstring->beginPos );
+        }
+        else
+        {
+            // This is the case when a file is empty or has comments only
+        }
+    }
+    else
+    {
+        injectTrailingComments( context, parent,
+                                lastAdded->endLine, lastAdded->beginPos );
+    }
+
+    context->nodeStack.pop_back();
+    context->flowStack.pop_back();
     return lastAdded;
 }
 
@@ -2909,7 +3023,7 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
 
         if ( controlFlow->nsuite.size() > 0 )
         {
-            // If the is nothing in the file => body is None
+            // If there is nothing in the file => body is None
             // Here: there is something, so create the real body fragment, i.e.
             // everything except the 2 special purpose comment lines and
             // possible a comment for the file
