@@ -439,7 +439,7 @@ processEncoding( const char *   buffer,
 
 // Detects the leading comments block last line. -1 if none found
 static int
-detectLeadingBlock( Context * context, int  limit )
+detectLeadingBlock( Context * context, int  limit, INT_TYPE  blockShift = 0 )
 {
     if ( context->comments->empty() )
         return -1;
@@ -454,6 +454,9 @@ detectLeadingBlock( Context * context, int  limit )
             k != context->comments->end(); ++k )
     {
         if ( k->line >= limit )
+            break;
+
+        if ( k->pos < blockShift )
             break;
 
         if ( k->line > lastInBlock + 1 )
@@ -2599,7 +2602,8 @@ injectTrailingComments( Context *       context,
             break;
 
         int     leadingLastLine = detectLeadingBlock( context,
-                                                      nextStatementLine );
+                                                      nextStatementLine,
+                                                      blockShift );
 
         injectOneLeadingComment( context, *flowToAddTo, parent,
                                  NULL, NULL, -1, false, leadingLastLine );
