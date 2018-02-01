@@ -1,3 +1,9 @@
+2018 Jan 31 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.1.1
+* Bug fix: proper collecting comments for a suite when an upper suite comment
+  is on the very next line
+
 2018 Jan 09 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.1.0
