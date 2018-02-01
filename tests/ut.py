@@ -404,6 +404,11 @@ class CDMControlFlowParserTest(unittest.TestCase):
         self.meat(self.dir + "empty_brackets.py",
                   "empty brackets test failed")
 
+    def test_trailing_comments1(self):
+        """Test trailing comments"""
+        self.meat(self.dir + "trailingcomments.py",
+                  "trailing comments test failed")
+
 
 # Run the unit tests
 if __name__ == '__main__':
