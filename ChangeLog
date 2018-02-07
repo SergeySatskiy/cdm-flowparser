@@ -1,3 +1,9 @@
+2018 Feb 06 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.1.2
+* Bug fix: proper collecting of the leading CML comments for the 'elif',
+  'else', 'except' and 'finally' parts
+
 2018 Jan 31 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.1.1
