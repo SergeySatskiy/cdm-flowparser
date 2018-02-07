@@ -486,6 +486,7 @@ createCommentFragment( const CommentLine &  comment )
 static void
 addLeadingCMLComment( Context *  context,
                       CMLComment *  leadingCML,
+                      bool  consumeAllAsLeading,
                       int  leadingLastLine,
                       int  firstStatementLine,
                       FragmentBase *  statementAsParent,
@@ -494,7 +495,8 @@ addLeadingCMLComment( Context *  context,
                       Py::List &  flow )
 {
     leadingCML->extractProperties( context );
-    if ( leadingLastLine + 1 == firstStatementLine )
+    if ( leadingLastLine + 1 == firstStatementLine ||
+         consumeAllAsLeading )
     {
         statementAsParent->updateBeginEnd( leadingCML );
         statement->leadingCMLComments.append( Py::asObject( leadingCML ) );
@@ -531,7 +533,7 @@ injectOneLeadingComment( Context *  context,
         {
             if ( leadingCML != NULL )
             {
-                addLeadingCMLComment( context, leadingCML,
+                addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
                                       leadingLastLine, firstStatementLine,
                                       statementAsParent, statement,
                                       flowAsParent, flow );
@@ -596,7 +598,7 @@ injectOneLeadingComment( Context *  context,
         {
             if ( leadingCML != NULL )
             {
-                addLeadingCMLComment( context, leadingCML,
+                addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
                                       leadingLastLine, firstStatementLine,
                                       statementAsParent, statement,
                                       flowAsParent, flow );
@@ -624,7 +626,7 @@ injectOneLeadingComment( Context *  context,
 
     if ( leadingCML != NULL )
     {
-        addLeadingCMLComment( context, leadingCML,
+        addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
                               leadingLastLine, firstStatementLine,
                               statementAsParent, statement,
                               flowAsParent, flow );
