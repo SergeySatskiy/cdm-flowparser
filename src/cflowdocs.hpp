@@ -115,6 +115,10 @@
 #define GETLINECONTENT_DOC \
 "Provides a content with complete lines including leading spaces if so"
 
+// getParentIfID(...) docstring
+#define GETPARENTIFID_DOC \
+"Provides a nearest parent IF branch unique identifier"
+
 
 // BangLine class docstring
 #define BANGLINE_DOC \

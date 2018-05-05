@@ -84,6 +84,7 @@ class FragmentBase
         Py::Object  getContent( const Py::Tuple &  args );
         std::string getContent( const char *  buf = NULL );
         Py::Object  getLineContent( const Py::Tuple &  args );
+        Py::Object  getParentIfID( void );
 
         void        updateBegin( const FragmentBase *  other );
         void        updateEnd( const FragmentBase *  other );

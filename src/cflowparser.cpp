@@ -548,6 +548,7 @@ injectOneLeadingComment( Context *  context,
                 part->parent = flowAsParent;
 
             leadingCML = new CMLComment;
+            leadingCML->parent = part->parent;
             leadingCML->updateBeginEnd( part );
             leadingCML->parts.append( Py::asObject( part ) );
         }
@@ -763,6 +764,7 @@ injectSideComments( Context *  context,
             part->parent = statementAsParent;
 
             sideCML = new CMLComment;
+            sideCML->parent = part->parent;
             sideCML->updateBeginEnd( part );
             sideCML->parts.append( Py::asObject( part ) );
         }
@@ -835,6 +837,7 @@ injectSideComments( Context *  context,
             part->parent = statementAsParent;
 
             sideCML = new CMLComment;
+            sideCML->parent = part->parent;
             sideCML->updateBeginEnd( part );
             sideCML->parts.append( Py::asObject( part ) );
         }

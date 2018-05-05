@@ -244,6 +244,20 @@ Py::Object  FragmentBase::getLineContent( const Py::Tuple &  args )
 }
 
 
+Py::Object  FragmentBase::getParentIfID( void )
+{
+    FragmentBase *  current = parent;
+    while ( current != NULL )
+    {
+        if ( current->kind == ELIF_PART_FRAGMENT )
+            return PYTHON_INT_TYPE(reinterpret_cast<INT_TYPE>(current));
+
+        current = current->parent;
+    }
+    return Py::None();
+}
+
+
 void FragmentBase::updateBegin( const FragmentBase *  other )
 {
     if ( begin == -1 || other->begin < begin )
@@ -319,6 +333,8 @@ void Fragment::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -514,6 +530,8 @@ void BangLine::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -597,6 +615,8 @@ void EncodingLine::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -696,6 +716,8 @@ void Comment::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -863,6 +885,8 @@ void CMLComment::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1034,6 +1058,8 @@ void Docstring::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1219,6 +1245,8 @@ void Decorator::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1329,6 +1357,8 @@ void CodeBlock::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1416,6 +1446,8 @@ void Annotation::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1507,6 +1539,8 @@ void Argument::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1635,6 +1669,8 @@ void Function::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_noargs_method( "isAsync", &Function::isAsync,
                        FUNCTION_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
@@ -1777,6 +1813,8 @@ void Class::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1890,6 +1928,8 @@ void Break::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -1950,6 +1990,8 @@ void Continue::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2012,6 +2054,8 @@ void Return::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2099,6 +2143,8 @@ void Raise::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2187,6 +2233,8 @@ void Assert::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2290,6 +2338,8 @@ void SysExit::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2380,6 +2430,8 @@ void While::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2476,6 +2528,8 @@ void For::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_noargs_method( "isAsync", &For::isAsync,
                        FOR_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
@@ -2587,6 +2641,8 @@ void Import::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2693,6 +2749,8 @@ void ElifPart::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2785,6 +2843,8 @@ void If::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -2846,6 +2906,8 @@ void With::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_noargs_method( "isAsync", &With::isAsync,
                        WITH_ISASYNC_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
@@ -2953,6 +3015,8 @@ void ExceptPart::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -3044,6 +3108,8 @@ void Try::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
@@ -3132,6 +3198,8 @@ void ControlFlow::initType( void )
 
     add_noargs_method( "getLineRange", &FragmentBase::getLineRange,
                        GETLINERANGE_DOC );
+    add_noargs_method( "getParentIfID", &FragmentBase::getParentIfID,
+                       GETPARENTIFID_DOC );
     add_varargs_method( "getContent", &FragmentBase::getContent,
                         GETCONTENT_DOC );
     add_varargs_method( "getLineContent", &FragmentBase::getLineContent,
