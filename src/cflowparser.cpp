@@ -1887,7 +1887,10 @@ checkForSysExit( Context *          context,
 
         sysExit->updateBeginEnd( body );
 
-        injectComments( context, flow, parent, sysExit, sysExit );
+        // NB: no comments injection!
+        // It has to be done after the comments are injected for the currently
+        // accumulated code block
+
         return sysExit;
     }
 
@@ -2701,6 +2704,15 @@ walk( Context *                    context,
                     if ( sysExit != NULL )
                     {
                         addCodeBlock( context, & codeBlock, flow, parent );
+
+                        // NB: the 'checkForSysExit() does not inject comments
+                        // because they first must be injected for the current
+                        // code block. The current block comments are injected
+                        // in the addCodeBlock() function so here the comments
+                        // are injected for sys.exit() only
+                        injectComments( context, flow, parent,
+                                        static_cast<SysExit *>(sysExit),
+                                        sysExit );
                         flow.append( Py::asObject(
                                             static_cast<SysExit *>(sysExit) ) );
                         lastAdded = sysExit;

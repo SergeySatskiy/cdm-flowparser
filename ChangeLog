@@ -1,3 +1,8 @@
+2018 May 17 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.1.4
+* Bug fix: incorrect leading comments handling when sys.exit() is detected
+
 2018 May 07 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.1.3
