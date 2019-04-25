@@ -1,3 +1,10 @@
+2019 Apr 25 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.2.0
+* Python 3.7 support
+* Updating pycxx to 7.1.2 (from 7.0.1)
+* Minor fixes in setup.py
+
 2018 May 17 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.1.4
