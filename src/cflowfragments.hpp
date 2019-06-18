@@ -81,6 +81,7 @@ class FragmentBase
 
     public:
         Py::Object  getLineRange( void );
+        Py::Object  getAbsPosRange( void );
         Py::Object  getContent( const Py::Tuple &  args );
         std::string getContent( const char *  buf = NULL );
         Py::Object  getLineContent( const Py::Tuple &  args );

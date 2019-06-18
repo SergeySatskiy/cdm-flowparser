@@ -107,6 +107,10 @@
 #define GETLINERANGE_DOC \
 "Provides line range for the fragment"
 
+// getAbsPosRange() docstring
+#define GETABSPOSRANGE_DOC \
+"Provides absolute position range for the fragment"
+
 // getContent(...) docstring
 #define GETCONTENT_DOC \
 "Provides the content of the fragment"
