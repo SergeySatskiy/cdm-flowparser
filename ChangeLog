@@ -1,3 +1,8 @@
+2019 Jun 18 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.2.1
+* Adding getAbsPosRange() method for all the fragments
+
 2019 Apr 25 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.2.0
