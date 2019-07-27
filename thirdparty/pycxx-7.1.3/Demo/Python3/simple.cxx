@@ -33,6 +33,10 @@ public:
             Py::String name( names[i] );
             std::cout << "    " << name << std::endl;
         }
+        if( args.length() >= 1 )
+        {
+            m_value = args[0];
+        }
     }
 
     virtual ~new_style_class()
@@ -60,9 +64,20 @@ public:
 
         PYCXX_ADD_VARARGS_METHOD( func_varargs_call_member, new_style_class_call_member, "docs for func_varargs_call_member" );
 
+        PYCXX_ADD_NOARGS_METHOD( __reduce__, reduce_func, "__reduce__ function" );
+
         // Call to make the type ready for use
         behaviors().readyType();
     }
+
+    Py::Object reduce_func( void )
+    {
+        Py::TupleN ctor_args( m_value );
+        Py::TupleN result( new_style_class::type(), ctor_args );
+
+        return result;
+    }
+    PYCXX_NOARGS_METHOD_DECL( new_style_class, reduce_func )
 
     Py::Object new_style_class_func_noargs( void )
     {
@@ -229,6 +244,7 @@ public:
         add_keyword_method("func_with_callback_catch_simple_error", &simple_module::func_with_callback_catch_simple_error, "documentation for func_with_callback_catch_simple_error()");
         add_keyword_method("make_instance", &simple_module::make_instance, "documentation for make_instance()");
 
+        add_keyword_method("str_test", &simple_module::str_test, "documentation for str_test()");
         add_keyword_method("decode_test", &simple_module::decode_test, "documentation for decode_test()");
         add_keyword_method("encode_test", &simple_module::encode_test, "documentation for encode_test()");
         add_keyword_method("derived_class_test", &simple_module::derived_class_test, "documentation for derived_class_test()");
@@ -258,6 +274,15 @@ private:
     {
         Py::String s( args[0] );
         return s.encode("utf-8");
+    }
+
+    Py::Object str_test( const Py::Tuple &args, const Py::Dict &/*kwds*/ )
+    {
+        char buffer[64*1024+1];
+        memset( &buffer, ' ', sizeof( buffer )-1 );
+        buffer[sizeof( buffer )-1] = 0;
+
+        return Py::String( buffer );
     }
 
     Py::Object derived_class_test( const Py::Tuple &args, const Py::Dict &/*kwds*/ )

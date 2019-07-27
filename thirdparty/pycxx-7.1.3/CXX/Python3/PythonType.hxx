@@ -61,7 +61,7 @@ namespace Py
         PythonType &doc( const char *d );
 
         PythonType &supportClass( void );
-#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API )
+#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API ) && PY_MINOR_VERSION <= 7
         PythonType &supportPrint( void );
 #endif
         PythonType &supportGetattr( void );

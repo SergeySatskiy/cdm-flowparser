@@ -232,7 +232,7 @@ extern "C"
     // All the following functions redirect the call from Python
     // onto the matching virtual function in PythonExtensionBase
     //
-#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API )
+#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API ) && PY_MINOR_VERSION <= 7
     static int print_handler( PyObject *, FILE *, int );
 #endif
     static PyObject *getattr_handler( PyObject *, char * );
@@ -492,7 +492,9 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 
     // Methods to implement standard operations
     table->tp_dealloc = (destructor)standard_dealloc;
+#if PY_MINOR_VERSION <= 7
     table->tp_print = 0;
+#endif
     table->tp_getattr = 0;
     table->tp_setattr = 0;
     table->tp_repr = 0;
@@ -684,14 +686,12 @@ PythonType &PythonType::supportClass()
     return *this;
 }
 
-#ifdef PYCXX_PYTHON_2TO3
-#if !defined( Py_LIMITED_API )
+#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API ) && PY_MINOR_VERSION <= 7
 PythonType &PythonType::supportPrint()
 {
     table->tp_print = print_handler;
     return *this;
 }
-#endif
 #endif
 
 PythonType &PythonType::supportGetattr()
@@ -831,7 +831,7 @@ PythonExtensionBase *getPythonExtensionBase( PyObject *self )
     }
 }
 
-#if defined( PYCXX_PYTHON_2TO3 ) && !defined ( Py_LIMITED_API )
+#if defined( PYCXX_PYTHON_2TO3 ) && !defined ( Py_LIMITED_API ) && PY_MINOR_VERSION <= 7
 extern "C" int print_handler( PyObject *self, FILE *fp, int flags )
 {
     try
@@ -1495,7 +1495,7 @@ int PythonExtensionBase::genericSetAttro( const String &name, const Object &valu
     return PyObject_GenericSetAttr( selfPtr(), name.ptr(), value.ptr() );
 }
 
-#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API )
+#if defined( PYCXX_PYTHON_2TO3 ) && !defined( Py_LIMITED_API ) && PY_MINOR_VERSION <= 7
 int PythonExtensionBase::print( FILE *, int )
 {
     missing_method( print );
