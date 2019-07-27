@@ -19,14 +19,6 @@
  */
 
 
-#include <Python.h>
-#include <node.h>
-#include <grammar.h>
-#include <parsetok.h>
-#include <graminit.h>
-#include <errcode.h>
-#include <token.h>
-
 #include <string.h>
 #include <list>
 
@@ -35,6 +27,23 @@
 #include "cflowfragments.hpp"
 #include "cflowcomments.hpp"
 #include "cflowutils.hpp"
+
+/*
+ * The python grammar definition conflicts with the standard library
+ * declarations on some platforms, particularly on MacOS: python uses
+ * #define test 305
+ * while the library has
+ * bitset<_Size>::test(size_t __pos) const
+ * Thus the python headers must be after certain PyCXX library includes which
+ * use the standard library.
+ */
+#include <Python.h>
+#include <node.h>
+#include <grammar.h>
+#include <parsetok.h>
+#include <graminit.h>
+#include <errcode.h>
+#include <token.h>
 
 
 extern grammar      _PyParser_Grammar;  /* From graminit.c */
