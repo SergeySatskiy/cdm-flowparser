@@ -22,7 +22,7 @@
 #include <sys/stat.h>
 
 #include <iostream>
-using namespace std;
+
 
 /*
  * The python grammar definition conflicts with the standard library
@@ -52,7 +52,7 @@ struct PythonEnvironment
 
 
 
-string errorCodeToString( int  error )
+std::string errorCodeToString( int  error )
 {
     switch ( error )
     {
@@ -85,23 +85,23 @@ void printError( perrdetail *  error )
 {
     if ( error->error == E_OK || error->error == E_DONE )
     {
-        cout << "No errors found" << endl;
+        std::cout << "No errors found" << std::endl;
         return;
     }
 
-    cout << "Error structure" << endl
-         << "  error: " << errorCodeToString( error->error ) << endl
-         << "  filename: " << error->filename << endl
-         << "  lineno: " << error->lineno << endl
-         << "  offset: " << error->offset << endl;
+    std::cout << "Error structure" << std::endl
+              << "  error: " << errorCodeToString( error->error ) << std::endl
+              << "  filename: " << error->filename << std::endl
+              << "  lineno: " << error->lineno << std::endl
+              << "  offset: " << error->offset << std::endl;
     if ( error->text != NULL )
-         cout << "  text: " << error->text << endl;
-    cout << "  token: " << error->token << endl
-         << "  expected: " << error->expected << endl;
+         std::cout << "  text: " << error->text << std::endl;
+    std::cout << "  token: " << error->token << std::endl
+              << "  expected: " << error->expected << std::endl;
 }
 
 
-string  nodeTypeToString( int  nodeType  )
+std::string  nodeTypeToString( int  nodeType  )
 {
     switch ( nodeType )
     {
@@ -286,11 +286,12 @@ string  nodeTypeToString( int  nodeType  )
 void printTree( node *  n, size_t  level )
 {
     for ( size_t k = 0; k < level * 2; ++k )
-        cout << " ";
-    cout << "Type: " << nodeTypeToString( n->n_type ) << " line: " << n->n_lineno << " col: " << n->n_col_offset;
+        std::cout << " ";
+    std::cout << "Type: " << nodeTypeToString( n->n_type )
+              << " line: " << n->n_lineno << " col: " << n->n_col_offset;
     if ( n->n_str != NULL )
-         cout << " str: " << n->n_str;
-    cout << endl;
+         std::cout << " str: " << n->n_str;
+    std::cout << std::endl;
     for ( int k = 0; k < n->n_nchildren; ++k )
         printTree( &(n->n_child[ k ]), level + 1 );
 }
@@ -318,14 +319,14 @@ int main( int  argc, char *  argv[] )
 {
     if ( argc != 2 && argc != 3 )
     {
-        cerr << "Usage: " << argv[0] << " <python file name> [loops]" << endl;
+        std::cerr << "Usage: " << argv[0] << " <python file name> [loops]" << std::endl;
         return EXIT_FAILURE;
     }
 
     FILE *              f = fopen( argv[1], "r" );
     if ( f == NULL )
     {
-        cerr << "Cannot open " << argv[1] << endl;
+        std::cerr << "Cannot open " << argv[1] << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -335,7 +336,7 @@ int main( int  argc, char *  argv[] )
         loops = atoi( argv[2] );
         if ( loops <= 0 )
         {
-            cerr << "Number of loops must be >= 1" << endl;
+            std::cerr << "Number of loops must be >= 1" << std::endl;
             return EXIT_FAILURE;
         }
     }
@@ -348,8 +349,8 @@ int main( int  argc, char *  argv[] )
     size_t          itemCount = fread( buffer, st.st_size, 1, f );
     if (itemCount != 1)
     {
-        cerr << "Unexpected number of read items. Must be 1, received "
-             << itemCount << endl;
+        std::cerr << "Unexpected number of read items. Must be 1, received "
+                  << itemCount << std::endl;
         return EXIT_FAILURE;
     }
 
@@ -371,7 +372,7 @@ int main( int  argc, char *  argv[] )
 
         if ( n == NULL )
         {
-            cerr << "Parser error" << endl;
+            std::cerr << "Parser error" << std::endl;
             printError( &error );
             return EXIT_FAILURE;
         }
@@ -380,7 +381,7 @@ int main( int  argc, char *  argv[] )
         {
             printTree( n, 0 );
             printError( &error );
-            cout << "Total number of lines: " << getTotalLines( n ) << endl;
+            std::cout << "Total number of lines: " << getTotalLines( n ) << std::endl;
         }
         PyNode_Free( n );
     }
