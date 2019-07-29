@@ -52,7 +52,13 @@ LIBS=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.ge
 BLD_LIBRARY=$(shell python -c 'import distutils.sysconfig; print(distutils.sysconfig.get_config_var("BLDLIBRARY"))')
 
 VERSION_DEFINES=-DCDM_CF_PARSER_VERSION=\"${VERSION}\"
-FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES} -Wl,-rpath=${PYTHON_LIBS_PATH}
+FLAGS=-Wall -O2 -fno-gcse -ffast-math -fomit-frame-pointer -fPIC -fexceptions -frtti -DNDEBUG -D_GNU_SOURCE ${VERSION_DEFINES}
+
+# MacOS g++ does not like -rpath ...
+OS_NAME=$(shell uname -s)
+ifeq ($(OS_NAME),Linux)
+FLAGS += -Wl,-rpath=${PYTHON_LIBS_PATH}
+endif
 
 PYCXX_OBJ_FILES=${PYCXX_DIR}/Src/cxxsupport.o ${PYCXX_DIR}/Src/cxx_extensions.o \
                 ${PYCXX_DIR}/Src/IndirectPythonInterface.o ${PYCXX_DIR}/Src/cxxextensions.o \
