@@ -1,3 +1,8 @@
+2019 Nov 26 Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.2.3
+* Bug fix: handling multiline string literals with an applied operation
+
 2019 Jul 29 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.2.2

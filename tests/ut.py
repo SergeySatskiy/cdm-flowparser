@@ -409,6 +409,11 @@ class CDMControlFlowParserTest(unittest.TestCase):
         self.meat(self.dir + "trailingcomments.py",
                   "trailing comments test failed")
 
+    def test_return_multiline(self):
+        """Test return value which is a multiline string with replace"""
+        self.meat(self.dir + "returnmultiline.py",
+                  "return with multiline string literal and replacement")
+
 
 # Run the unit tests
 if __name__ == '__main__':

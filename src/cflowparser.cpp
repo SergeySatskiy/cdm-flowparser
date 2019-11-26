@@ -305,7 +305,10 @@ safeUpdateBegin( Context *   context,
     }
     else
     {
-        node *      lastPart = findLastPart( beginNode );
+        node *      lastPart = skipToNode(beginNode, STRING);
+        if ( lastPart == NULL)
+            lastPart = findLastPart( beginNode );
+
         if ( lastPart->n_type == STRING &&
              lastPart->n_str != NULL &&
              lastPart->n_col_offset == -1 )
@@ -2468,7 +2471,9 @@ addCodeBlock( Context *  context,
     }
     else
     {
-        lastItem = findLastPart( firstNode );
+        lastItem = skipToNode(firstNode, STRING);
+        if ( lastItem == NULL)
+            lastItem = findLastPart( firstNode );
         if ( lastItem->n_type == STRING && lastItem->n_str != NULL )
         {
             updateFragmentForMultilineStringLiteral( context, lastItem, body );
