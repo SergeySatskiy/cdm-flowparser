@@ -70,6 +70,7 @@ if platform.system().lower() == 'linux':
 # dependencies
 setup(name='cdmcfparser',
       description=description,
+      python_requires='>=3.5, <3.8',
       long_description=long_description,
       version=version,
       author='Sergey Satskiy',
