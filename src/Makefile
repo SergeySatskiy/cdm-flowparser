@@ -23,7 +23,7 @@
 # - move object files to a build dir
 
 
-.PHONY: all clean check
+.PHONY: all tree clean check
 
 
 # The python-config is not a very reliable choice to get the compiler
@@ -72,8 +72,10 @@ CDM_INC_FILES=cflowmodule.hpp cflowfragments.hpp cflowutils.hpp cflowparser.hpp 
 
 all: $(CDM_SRC_FILES) $(CDM_INC_FILES) $(PYCXX_SRC_FILES)
 	cd .. && CDM_PROJECT_BUILD_VERSION=$(CDM_PROJECT_BUILD_VERSION) python setup.py build_ext --inplace
-	g++ ${FLAGS} -o tree  tree.cpp -I${PYTHON_INCLUDE} -L${PYTHON_LIBS_PATH} ${BLD_LIBRARY} ${LIBS} ${LINK_FOR_SHARED}
 	g++ -o comments comments.cpp cflowcomments.cpp
+
+tree: tree.cpp
+	g++ ${FLAGS} -o tree  tree.cpp -I${PYTHON_INCLUDE} -L${PYTHON_LIBS_PATH} ${BLD_LIBRARY} ${LIBS} ${LINK_FOR_SHARED}
 
 clean:
 	rm -rf *.o core.* *.pyc tree comments ../build ../cdmcfparser.so

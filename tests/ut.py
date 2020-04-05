@@ -305,6 +305,21 @@ class CDMControlFlowParserTest(unittest.TestCase):
         self.meat(self.dir + "func_annotations.py",
                   "function annotations test failed")
 
+    def test_basic_if(self):
+        """Tests the basic if structure"""
+        self.meat(self.dir + 'basicif.py',
+                  'basic if test failed')
+
+    def test_basic_while(self):
+        """Tests the basic while loop structure"""
+        self.meat(self.dir + 'basicwhile.py',
+                  'basic while test failed')
+
+    def test_basic_for(self):
+        """Tests the basic for loop structure"""
+        self.meat(self.dir + 'basicfor.py',
+                  'basic for test failed')
+
 #    def test_nested_func_definitions(self):
 #        """Test nested functions definitions"""
 #        self.meat(self.dir + "nested_funcs.py",

@@ -204,48 +204,63 @@ skipToNode( node *  tree, int nodeType )
     return NULL;
 }
 
-static void updateBegin( Fragment *  f, node *  firstPart,
-                         int *  lineShifts )
+/* returns 1, 2, 3 or 4,
+   i.e. the number of leading quotes used in a string literal part */
+static size_t getStringLiteralPrefixLength( node *  tree )
 {
-    f->begin = lineShifts[ firstPart->n_lineno ] + firstPart->n_col_offset;
-    f->beginLine = firstPart->n_lineno;
-    f->beginPos = firstPart->n_col_offset + 1;
+    /* tree must be of STRING type */
+    assert( tree->n_type == STRING );
+    if ( strncmp( tree->n_str, "\"\"\"", 3 ) == 0 )
+        return 3;
+    if ( strncmp( tree->n_str, "'''", 3 ) == 0 )
+        return 3;
+    if ( strncmp( tree->n_str, "r\"\"\"", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "r'''", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "u\"\"\"", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "u'''", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "f\"\"\"", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "f'''", 4 ) == 0 )
+        return 4;
+    if ( strncmp( tree->n_str, "r\"", 2 ) == 0 )
+        return 2;
+    if ( strncmp( tree->n_str, "r'", 2 ) == 0 )
+        return 2;
+    if ( strncmp( tree->n_str, "u\"", 2 ) == 0 )
+        return 2;
+    if ( strncmp( tree->n_str, "u'", 2 ) == 0 )
+        return 2;
+    if ( strncmp( tree->n_str, "f\"", 2 ) == 0 )
+        return 2;
+    if ( strncmp( tree->n_str, "f'", 2 ) == 0 )
+        return 2;
+    return 1;
 }
 
 
-static void updateEnd( Fragment *  f, node *  lastPart,
-                       int *  lineShifts )
+static void
+getNewLineParts( const char *  str,
+                 std::deque<const char *>  &  parts,
+                 int &  newLineCount,
+                 int &  charCount )
 {
-    if ( lastPart->n_str != NULL )
-    {
-        int     lastPartLength = strlen( lastPart->n_str );
+    newLineCount = 0;
+    charCount = 0;
 
-        f->end = lineShifts[ lastPart->n_lineno ] +
-                 lastPart->n_col_offset + lastPartLength - 1;
-        f->endLine = lastPart->n_lineno;
-        f->endPos = lastPart->n_col_offset + lastPartLength;
-    }
-    else
-    {
-        f->end = lineShifts[ lastPart->n_lineno ] + lastPart->n_col_offset;
-        f->endLine = lastPart->n_lineno;
-        f->endPos = lastPart->n_col_offset;
-    }
-}
-
-
-static int
-getNewLineParts( const char *  str, std::deque<const char *>  &  parts)
-{
-    int     count = 0;
     bool    found = false;
-
     while ( * str != '\0' )
     {
         if ( * str == '\r' )
         {
             if ( * (str + 1 ) == '\n' )
+            {
                 ++str;
+                ++charCount;
+            }
             found = true;
         }
         else if ( * str == '\n' )
@@ -253,103 +268,111 @@ getNewLineParts( const char *  str, std::deque<const char *>  &  parts)
 
         if ( found )
         {
-            ++count;
+            ++newLineCount;
             parts.push_back( str );
             found = false;
         }
 
         ++str;
+        ++charCount;
     }
-    return count;
 }
 
 
-// Multiline string literals do not have properly filled information
-// They only have the last line info
 static void
-updateFragmentForMultilineStringLiteral( Context *  context,
-                                         node *  stringChild,
-                                         Fragment *  f )
+updateBegin( Fragment *  f, node *  n, Context *   context )
 {
-    // Sick! The syntax parser provides column == -1 if it was a
-    // multiline comment. So the only real information is the end line
-    // of the multiline comment. All the rest I have to deduct myself
-    std::deque< const char * >  newLines;
-    int             count = getNewLineParts( stringChild->n_str,
-                                             newLines );
-    const char *    lastNewLine = newLines.back();
-    int             strLen = strlen( stringChild->n_str );
-
-    f->endLine = stringChild->n_lineno;
-    f->beginLine = f->endLine - count;
-
-    f->endPos = strlen( lastNewLine + 1 );
-    f->end = context->lineShifts[ f->endLine ] + f->endPos - 1;
-
-    f->begin = f->end - strLen + 1;
-    f->beginPos = f->begin - context->lineShifts[ f->beginLine ] + 1;
-    return;
-}
-
-
-// Considers a possibility of a multiline string literal which does not have
-// the proper begin
-static void
-safeUpdateBegin( Context *   context,
-                 node *      beginNode,
-                 Fragment *  fragmentToUpdate )
-{
-    if ( beginNode->n_col_offset != -1)
-    {
-        updateBegin( fragmentToUpdate, beginNode, context->lineShifts );
-    }
-    else
-    {
-        node *      lastPart = skipToNode(beginNode, STRING);
-        if ( lastPart == NULL)
-            lastPart = findLastPart( beginNode );
-
-        if ( lastPart->n_type == STRING &&
-             lastPart->n_str != NULL &&
-             lastPart->n_col_offset == -1 )
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        // Python 3.8 has the first line and column set correct
+        f->beginLine = n->n_lineno;
+        f->beginPos = n->n_col_offset + 1;
+        f->begin = context->lineShifts[ f->beginLine ] + n->n_col_offset;
+    #else
+        // Python 3.7 and below have -1 for multiline string literals
+        if ( n->n_col_offset == -1 )
         {
-            updateFragmentForMultilineStringLiteral( context, lastPart, fragmentToUpdate );
+            // Bad case: it is a multiline string literal so need to guess
+            // all the values
+            node *      lastPart = skipToNode( n, STRING );
+            if ( lastPart )
+            {
+                if ( lastPart->n_col_offset == -1 )
+                {
+                    std::deque< const char * >  newLines;
+                    int                         newLineCount;
+                    int                         charCount;
+
+                    getNewLineParts( lastPart->n_str, newLines,
+                                     newLineCount, charCount );
+                    f->beginLine = n->n_lineno - newLineCount;
+                    f->begin = context->lineShifts[ n->n_lineno ] +
+                               strlen( newLines.back() + 1 ) - charCount;
+                    f->beginPos = f->begin -
+                                  context->lineShifts[ f->beginLine ] + 1;
+                    return;
+                }
+            }
+            // This should not really happened: fall through
         }
-        else
-        {
-            // NB: must never happened really
-            updateBegin( fragmentToUpdate, beginNode, context->lineShifts );
-        }
-    }
+
+        // Easy case: the proper info is in the node
+        f->beginLine = n->n_lineno;
+        f->beginPos = n->n_col_offset + 1;
+        f->begin = context->lineShifts[ f->beginLine ] + n->n_col_offset;
+    #endif
 }
 
 
-// Considers a possibility of a multiline string literal which does not have
-// the proper begin
 static void
-safeUpdateEnd( Context *   context,
-               node *      lastPart,
-               Fragment *  fragmentToUpdate )
+updateEnd( Fragment *  f, node *  n, Context *   context )
 {
-    if ( lastPart->n_type == STRING &&
-         lastPart->n_str != NULL &&
-         lastPart->n_col_offset == -1 )
-    {
-        std::deque< const char * >  newLines;
-        getNewLineParts( lastPart->n_str, newLines );
-        const char *                lastNewLine = newLines.back();
+    if ( n->n_str == NULL ) {
+        f->end = context->lineShifts[ n->n_lineno ] + n->n_col_offset;
+        f->endLine = n->n_lineno;
+        f->endPos = n->n_col_offset;
+        return;
+    }
 
-        fragmentToUpdate->endLine = lastPart->n_lineno;
-        fragmentToUpdate->endPos = strlen( lastNewLine + 1 );
-        fragmentToUpdate->end = context->lineShifts[ fragmentToUpdate->endLine ] +
-                                fragmentToUpdate->endPos - 1;
-    }
-    else
+    if ( n->n_type == STRING )
     {
-        updateEnd( fragmentToUpdate, lastPart, context->lineShifts );
+        if ( getStringLiteralPrefixLength( n ) >= 3 )
+        {
+            std::deque< const char * >  newLines;
+            int                         newLineCount;
+            int                         charCount;
+
+            getNewLineParts( n->n_str, newLines, newLineCount, charCount );
+
+            #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+                // Python 3.8 has the first line available for multiline
+                // string literals
+                f->endLine = n->n_lineno + newLineCount;
+            #else
+                // Python 3.7 has only the end line correct for multiline
+                // string literals
+                f->endLine = n->n_lineno;
+            #endif
+
+            if ( newLineCount == 0 )
+            {
+                f->endPos = n->n_col_offset + charCount;
+            }
+            else
+            {
+                const char *    lastNewLine = newLines.back();
+                f->endPos = strlen( lastNewLine  + 1 );
+            }
+            f->end = context->lineShifts[ f->endLine ] + f->endPos - 1;
+            return;
+        }
     }
+
+    int     lastPartLength = strlen( n->n_str );
+    f->end = context->lineShifts[ n->n_lineno ] +
+             n->n_col_offset + lastPartLength - 1;
+    f->endLine = n->n_lineno;
+    f->endPos = n->n_col_offset + lastPartLength;
 }
-
 
 
 // It also discards the comment from the deque if it is a bang line
@@ -928,7 +951,7 @@ processBreak( Context *  context,
 
     Fragment *      body( new Fragment );
     body->parent = br;
-    updateBegin( body, tree, context->lineShifts );
+    updateBegin( body, tree, context );
     body->end = body->begin + 4;        // 4 = strlen( "break" ) - 1
     body->endLine = tree->n_lineno;
     body->endPos = body->beginPos + 4;  // 4 = strlen( "break" ) - 1
@@ -952,7 +975,7 @@ processContinue( Context *  context,
 
     Fragment *      body( new Fragment );
     body->parent = cont;
-    updateBegin( body, tree, context->lineShifts );
+    updateBegin( body, tree, context );
     body->end = body->begin + 7;        // 7 = strlen( "continue" ) - 1
     body->endLine = tree->n_lineno;
     body->endPos = body->beginPos + 7;  // 7 = strlen( "continue" ) - 1
@@ -976,7 +999,7 @@ processAssert( Context *  context,
 
     Fragment *      body( new Fragment );
     body->parent = a;
-    updateBegin( body, tree, context->lineShifts );
+    updateBegin( body, tree, context );
     body->end = body->begin + 5;        // 5 = strlen( "assert" ) - 1
     body->endLine = tree->n_lineno;
     body->endPos = body->beginPos + 5;  // 5 = strlen( "assert" ) - 1
@@ -991,8 +1014,8 @@ processAssert( Context *  context,
     node *          testLastPart = findLastPart( firstTestNode );
 
     tst->parent = a;
-    safeUpdateBegin( context, firstTestNode, tst );
-    safeUpdateEnd( context, testLastPart, tst );
+    updateBegin( tst, firstTestNode, context );
+    updateEnd( tst, testLastPart, context );
 
     a->tst = Py::asObject( tst );
 
@@ -1007,8 +1030,8 @@ processAssert( Context *  context,
         node *          secondTestLastPart = findLastPart( secondTestNode );
 
         message->parent = a;
-        safeUpdateBegin( context, secondTestNode, message );
-        safeUpdateEnd( context, secondTestLastPart, message );
+        updateBegin( message, secondTestNode, context );
+        updateEnd( message, secondTestLastPart, context );
 
         a->updateEnd( message );
         a->message = Py::asObject( message );
@@ -1035,7 +1058,7 @@ processRaise( Context *  context,
 
     Fragment *      body( new Fragment );
     body->parent = r;
-    updateBegin( body, tree, context->lineShifts );
+    updateBegin( body, tree, context );
     body->end = body->begin + 4;        // 4 = strlen( "raise" ) - 1
     body->endLine = tree->n_lineno;
     body->endPos = body->beginPos + 4;  // 4 = strlen( "raise" ) - 1
@@ -1049,8 +1072,8 @@ processRaise( Context *  context,
         node *          lastPart = findLastPart( testNode );
 
         val->parent = r;
-        safeUpdateBegin( context, testNode, val );
-        safeUpdateEnd( context, lastPart, val );
+        updateBegin( val, testNode, context );
+        updateEnd( val, lastPart, context );
 
         r->updateEnd( val );
         r->value = Py::asObject( val );
@@ -1075,22 +1098,26 @@ processReturn( Context *  context, node *  tree,
 
     Fragment *      body( new Fragment );
     body->parent = ret;
-    updateBegin( body, tree, context->lineShifts );
+    updateBegin( body, tree, context );
     body->end = body->begin + 5;        // 5 = strlen( "return" ) - 1
     body->endLine = tree->n_lineno;
     body->endPos = body->beginPos + 5;  // 5 = strlen( "return" ) - 1
 
     ret->updateBegin( body );
 
-    node *      testlistNode = findChildOfType( tree, testlist );
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        node *  testlistNode = findChildOfType( tree, testlist_star_expr );
+    #else
+        node *  testlistNode = findChildOfType( tree, testlist );
+    #endif
     if ( testlistNode != NULL )
     {
         Fragment *      val( new Fragment );
         node *          lastPart = findLastPart( testlistNode );
 
         val->parent = ret;
-        safeUpdateBegin( context, testlistNode, val );
-        safeUpdateEnd( context, lastPart, val );
+        updateBegin( val, testlistNode, context );
+        updateEnd( val, lastPart, context );
 
         ret->updateEnd( val );
         ret->value = Py::asObject( val );
@@ -1124,14 +1151,18 @@ processElifPart( Context *  context, Py::List &  flow,
 
     node *      current = tree + 1;
     node *      colonNode = NULL;
-    if ( current->n_type == test )
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        if ( current->n_type == namedexpr_test )
+    #else
+        if ( current->n_type == test )
+    #endif
     {
         // This is an elif part, i.e. there is a condition part
         node *      last = findLastPart( current );
         Fragment *  condition( new Fragment );
         condition->parent = elifPart;
-        safeUpdateBegin( context, current, condition );
-        safeUpdateEnd( context, last, condition );
+        updateBegin( condition, current, context );
+        updateEnd( condition, last, context );
 
         elifPart->condition = Py::asObject( condition );
 
@@ -1146,8 +1177,8 @@ processElifPart( Context *  context, Py::List &  flow,
     node *          suiteNode = colonNode + 1;
     Fragment *      body( new Fragment );
     body->parent = elifPart;
-    updateBegin( body, tree, context->lineShifts );
-    updateEnd( body, colonNode, context->lineShifts );
+    updateBegin( body, tree, context );
+    updateEnd( body, colonNode, context );
     elifPart->updateBeginEnd( body );
     elifPart->body = Py::asObject( body );
 
@@ -1206,8 +1237,8 @@ processExceptPart( Context *  context, Py::List &  flow,
 
     // ':' node is the very next one
     node *          colonNode = tree + 1;
-    updateBegin( body, tree, context->lineShifts );
-    updateEnd( body, colonNode, context->lineShifts );
+    updateBegin( body, tree, context );
+    updateEnd( body, colonNode, context );
     exceptPart->updateBeginEnd( body );
     exceptPart->body = Py::asObject( body );
 
@@ -1222,8 +1253,8 @@ processExceptPart( Context *  context, Py::List &  flow,
             Fragment *  clause( new Fragment );
 
             clause->parent = exceptPart;
-            updateBegin( clause, testNode, context->lineShifts );
-            updateEnd( clause, last, context->lineShifts );
+            updateBegin( clause, testNode, context );
+            updateEnd( clause, last, context );
             exceptPart->clause = Py::asObject( clause );
         }
     }
@@ -1257,8 +1288,8 @@ processTry( Context *  context,
     Fragment *      body( new Fragment );
     node *          tryColonNode = findChildOfType( tree, COLON );
     body->parent = tryStatement;
-    updateBegin( body, tree, context->lineShifts );
-    updateEnd( body, tryColonNode, context->lineShifts );
+    updateBegin( body, tree, context );
+    updateEnd( body, tryColonNode, context );
     tryStatement->body = Py::asObject( body );
     tryStatement->updateBeginEnd( body );
 
@@ -1337,19 +1368,23 @@ processWhile( Context *  context,
     node *          whileNode = findChildOfType( tree, NAME );
 
     body->parent = w;
-    updateBegin( body, whileNode, context->lineShifts );
-    updateEnd( body, colonNode, context->lineShifts );
+    updateBegin( body, whileNode, context );
+    updateEnd( body, colonNode, context );
     w->body = Py::asObject( body );
     w->updateBeginEnd( body );
 
     // condition
-    node *          testNode = findChildOfType( tree, test );
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+        node *          testNode = findChildOfType( tree, namedexpr_test );
+    #else
+        node *          testNode = findChildOfType( tree, test );
+    #endif
     node *          lastPart = findLastPart( testNode );
     Fragment *      condition( new Fragment );
 
     condition->parent = w;
-    safeUpdateBegin( context, testNode, condition );
-    safeUpdateEnd( context, lastPart, condition );
+    updateBegin( condition, testNode, context );
+    updateEnd( condition, lastPart, context );
     w->condition = Py::asObject( condition );
 
     injectComments( context, flow, parent, w, w );
@@ -1405,27 +1440,27 @@ processWith( Context *  context,
     {
         Fragment *      async( new Fragment );
         async->parent = w;
-        updateBegin( async, asyncNode, context->lineShifts );
-        updateEnd( async, asyncNode, context->lineShifts );
+        updateBegin( async, asyncNode, context );
+        updateEnd( async, asyncNode, context );
         w->asyncKeyword = Py::asObject( async );
 
         // Need to update the body begin too
-        updateBegin( body, asyncNode, context->lineShifts );
+        updateBegin( body, asyncNode, context );
     }
     else
     {
-        updateBegin( body, whithNode, context->lineShifts );
+        updateBegin( body, whithNode, context );
     }
 
-    updateEnd( body, colonNode, context->lineShifts );
+    updateEnd( body, colonNode, context );
     w->body = Py::asObject( body );
     w->updateBeginEnd( body );
 
     // with keyword
     Fragment *      withKeyword( new Fragment );
     withKeyword->parent = w;
-    updateBegin( withKeyword, whithNode, context->lineShifts );
-    updateEnd( withKeyword, whithNode, context->lineShifts );
+    updateBegin( withKeyword, whithNode, context );
+    updateEnd( withKeyword, whithNode, context );
     w->withKeyword = Py::asObject( withKeyword );
 
     // items
@@ -1441,8 +1476,8 @@ processWith( Context *  context,
     Fragment *      items( new Fragment );
     node *          lastPart = findLastPart(lastWithItem);
     items->parent = w;
-    safeUpdateBegin( context, firstWithItem, items );
-    safeUpdateEnd( context, lastPart, items );
+    updateBegin( items, firstWithItem, context );
+    updateEnd( items, lastPart, context );
     w->items = Py::asObject( items );
 
     injectComments( context, flow, parent, w, w );
@@ -1490,27 +1525,27 @@ processFor( Context *  context,
     {
         Fragment *      async( new Fragment );
         async->parent = f;
-        updateBegin( async, asyncNode, context->lineShifts );
-        updateEnd( async, asyncNode, context->lineShifts );
+        updateBegin( async, asyncNode, context );
+        updateEnd( async, asyncNode, context );
         f->asyncKeyword = Py::asObject( async );
 
         // Need to update the body begin too
-        updateBegin( body, asyncNode, context->lineShifts );
+        updateBegin( body, asyncNode, context );
     }
     else
     {
-        updateBegin( body, forNode, context->lineShifts );
+        updateBegin( body, forNode, context );
     }
 
-    updateEnd( body, colonNode, context->lineShifts );
+    updateEnd( body, colonNode, context );
     f->body = Py::asObject( body );
     f->updateBeginEnd( body );
 
     // for keyword
     Fragment *      forKeyword( new Fragment );
     forKeyword->parent = f;
-    updateBegin( forKeyword, forNode, context->lineShifts );
-    updateEnd( forKeyword, forNode, context->lineShifts );
+    updateBegin( forKeyword, forNode, context );
+    updateEnd( forKeyword, forNode, context );
     f->forKeyword = Py::asObject( forKeyword );
 
     // Iteration
@@ -1520,8 +1555,8 @@ processFor( Context *  context,
     Fragment *      iteration( new Fragment );
 
     iteration->parent = f;
-    safeUpdateBegin( context, exprlistNode, iteration );
-    safeUpdateEnd( context, lastPart, iteration );
+    updateBegin( iteration, exprlistNode, context );
+    updateEnd( iteration, lastPart, context );
     f->iteration = Py::asObject( iteration );
 
     injectComments( context, flow, parent, f, f );
@@ -1564,8 +1599,8 @@ processImport( Context *  context,
     node *          lastPart = findLastPart( tree );
 
     body->parent = import;
-    updateBegin( body, tree, context->lineShifts );
-    updateEnd( body, lastPart, context->lineShifts );
+    updateBegin( body, tree, context );
+    updateEnd( body, lastPart, context );
 
     /* There must be one child of type import_from or import_name */
     tree = & ( tree->n_child[ 0 ] );
@@ -1586,7 +1621,7 @@ processImport( Context *  context,
         fromFragment->parent = import;
         whatFragment->parent = import;
 
-        updateBegin( fromFragment, fromPartBegin, context->lineShifts );
+        updateBegin( fromFragment, fromPartBegin, context );
 
         node *      lastFromPart = NULL;
         if ( fromPartBegin->n_type == DOT ||
@@ -1614,14 +1649,14 @@ processImport( Context *  context,
             lastFromPart = findLastPart( fromPartBegin );
         }
 
-        updateEnd( fromFragment, lastFromPart, context->lineShifts );
+        updateEnd( fromFragment, lastFromPart, context );
 
         node *      whatPart = findChildOfTypeAndValue( tree, NAME, "import" );
         assert( whatPart != NULL );
 
         ++whatPart;     // the very next after import is the first of the what part
-        updateBegin( whatFragment, whatPart, context->lineShifts );
-        updateEnd( whatFragment, lastPart, context->lineShifts );
+        updateBegin( whatFragment, whatPart, context );
+        updateEnd( whatFragment, lastPart, context );
 
         import->fromPart = Py::asObject( fromFragment );
         import->whatPart = Py::asObject( whatFragment );
@@ -1679,7 +1714,7 @@ processImport( Context *  context,
         assert( firstWhat != NULL );
 
         whatFragment->parent = import;
-        updateBegin( whatFragment, firstWhat, context->lineShifts );
+        updateBegin( whatFragment, firstWhat, context );
 
         // The end matches the body
         whatFragment->end = body->end;
@@ -1737,18 +1772,18 @@ processDecor( Context *  context, Py::List &  flow,
     node *          lastNameNode = findLastPart( nameNode );
 
     nameFragment->parent = decor;
-    updateBegin( nameFragment, nameNode, context->lineShifts );
-    updateEnd( nameFragment, lastNameNode, context->lineShifts );
+    updateBegin( nameFragment, nameNode, context );
+    updateEnd( nameFragment, lastNameNode, context );
     decor->name = Py::asObject( nameFragment );
 
     Fragment *      body( new Fragment );
     body->parent = decor;
-    updateBegin( body, atNode, context->lineShifts );
+    updateBegin( body, atNode, context );
 
     if ( lparNode == NULL )
     {
         // Decorator without arguments
-        updateEnd( body, lastNameNode, context->lineShifts );
+        updateEnd( body, lastNameNode, context );
     }
     else
     {
@@ -1757,10 +1792,10 @@ processDecor( Context *  context, Py::List &  flow,
         Fragment *      argsFragment( new Fragment );
 
         argsFragment->parent = decor;
-        updateBegin( argsFragment, lparNode, context->lineShifts );
-        updateEnd( argsFragment, rparNode, context->lineShifts );
+        updateBegin( argsFragment, lparNode, context );
+        updateEnd( argsFragment, rparNode, context );
         decor->arguments = Py::asObject( argsFragment );
-        updateEnd( body, rparNode, context->lineShifts );
+        updateEnd( body, rparNode, context );
     }
 
     decor->body = Py::asObject( body );
@@ -1876,8 +1911,8 @@ checkForSysExit( Context *          context,
 
         Fragment *      body( new Fragment );
         body->parent = sysExit;
-        updateBegin( body, atomNode, context->lineShifts );
-        updateEnd( body, rparNode, context->lineShifts );
+        updateBegin( body, atomNode, context );
+        updateEnd( body, rparNode, context );
         sysExit->body = Py::asObject( body );
 
         if ( arglistNode != NULL )
@@ -1886,15 +1921,15 @@ checkForSysExit( Context *          context,
             Fragment *  actualArg( new Fragment );
 
             actualArg->parent = parent;
-            updateBegin( actualArg, arglistNode, context->lineShifts );
-            updateEnd( actualArg, lastPartNode, context->lineShifts );
+            updateBegin( actualArg, arglistNode, context );
+            updateEnd( actualArg, lastPartNode, context );
             sysExit->actualArg = Py::asObject( actualArg );
         }
 
         Fragment *  arg( new Fragment );
         arg->parent = sysExit;
-        updateBegin( arg, lparNode, context->lineShifts );
-        updateEnd( arg, rparNode, context->lineShifts );
+        updateBegin( arg, lparNode, context );
+        updateEnd( arg, rparNode, context );
         sysExit->arg = Py::asObject( arg );
 
         sysExit->updateBeginEnd( body );
@@ -1911,7 +1946,7 @@ checkForSysExit( Context *          context,
 }
 
 
-// None or a Docstring instance
+// NULL or a Docstring instance
 static Docstring *
 checkForDocstring( Context *  context, node *  tree )
 {
@@ -1962,16 +1997,8 @@ checkForDocstring( Context *  context, node *  tree )
         Fragment *      part( new Fragment );
         part->parent = docstr;
 
-        if ( stringChild->n_col_offset != -1 )
-        {
-            updateBegin( part, stringChild, context->lineShifts );
-            updateEnd( part, stringChild, context->lineShifts );
-        }
-        else
-        {
-            updateFragmentForMultilineStringLiteral( context, stringChild,
-                                                     part );
-        }
+        updateBegin( part, stringChild, context );
+        updateEnd( part, stringChild, context );
 
         // In the vast majority of cases a docstring consists of a single part
         // so there is no need to optimize via updateBegin() & updateEnd()
@@ -1998,16 +2025,16 @@ processAnnotation( Context *    context,
 
     Fragment *      sep( new Fragment );
     sep->parent = ann;
-    updateBegin( sep, separator, context->lineShifts );
-    updateEnd( sep, separator, context->lineShifts );
+    updateBegin( sep, separator, context );
+    updateEnd( sep, separator, context );
     ann->separator = Py::asObject( sep );
 
     Fragment *      text( new Fragment );
     node *          lastPart( findLastPart( annotation ) );
 
     text->parent = ann;
-    updateBegin( text, annotation, context->lineShifts );
-    updateEnd( text, lastPart, context->lineShifts );
+    updateBegin( text, annotation, context );
+    updateEnd( text, lastPart, context );
     ann->text = Py::asObject( text );
 
     ann->updateEnd( text );
@@ -2061,8 +2088,8 @@ processFunctionArgument( Context *      context,
 
     Fragment *  name( new Fragment );
     name->parent = arg;
-    updateBegin( name, argBegin, context->lineShifts );
-    updateEnd( name, nameNode, context->lineShifts );
+    updateBegin( name, argBegin, context );
+    updateEnd( name, nameNode, context );
     arg->name = Py::asObject( name );
 
     arg->updateEnd( name );
@@ -2104,13 +2131,13 @@ processFunctionArgument( Context *      context,
                 node *          lastPart( findLastPart( testNode ) );
 
                 sep->parent = arg;
-                updateBegin( sep, child, context->lineShifts );
-                updateEnd( sep, child, context->lineShifts );
+                updateBegin( sep, child, context );
+                updateEnd( sep, child, context );
                 arg->separator = Py::asObject( sep );
 
                 defValue->parent = arg;
-                updateBegin( defValue, testNode, context->lineShifts );
-                updateEnd( defValue, lastPart, context->lineShifts );
+                updateBegin( defValue, testNode, context );
+                updateEnd( defValue, lastPart, context );
                 arg->defaultValue = Py::asObject( defValue );
 
                 arg->updateEnd( defValue );
@@ -2162,19 +2189,19 @@ processFuncDefinition( Context *                    context,
     {
         Fragment *      async( new Fragment );
         async->parent = func;
-        updateBegin( async, asyncNode, context->lineShifts );
-        updateEnd( async, asyncNode, context->lineShifts );
+        updateBegin( async, asyncNode, context );
+        updateEnd( async, asyncNode, context );
         func->asyncKeyword = Py::asObject( async );
 
         // Need to update the body begin too
-        updateBegin( body, asyncNode, context->lineShifts );
+        updateBegin( body, asyncNode, context );
     }
     else
     {
-        updateBegin( body, defNode, context->lineShifts );
+        updateBegin( body, defNode, context );
     }
 
-    updateEnd( body, colonNode, context->lineShifts );
+    updateEnd( body, colonNode, context );
     func->body = Py::asObject( body );
 
     if ( annotSeparator != NULL )
@@ -2194,14 +2221,14 @@ processFuncDefinition( Context *                    context,
 
     Fragment *      def( new Fragment );
     def->parent = func;
-    updateBegin( def, defNode, context->lineShifts );
-    updateEnd( def, defNode, context->lineShifts );
+    updateBegin( def, defNode, context );
+    updateEnd( def, defNode, context );
     func->defKeyword = Py::asObject( def );
 
     Fragment *      name( new Fragment );
     name->parent = func;
-    updateBegin( name, nameNode, context->lineShifts );
-    updateEnd( name, nameNode, context->lineShifts );
+    updateBegin( name, nameNode, context );
+    updateEnd( name, nameNode, context );
     func->name = Py::asObject( name );
 
     node *      params = findChildOfType( tree, parameters );
@@ -2209,8 +2236,8 @@ processFuncDefinition( Context *                    context,
     node *      rparNode = findChildOfType( params, RPAR );
     Fragment *  args( new Fragment );
     args->parent = func;
-    updateBegin( args, lparNode, context->lineShifts );
-    updateEnd( args, rparNode, context->lineShifts );
+    updateBegin( args, lparNode, context );
+    updateEnd( args, rparNode, context );
     func->arguments = Py::asObject( args );
 
     node *      argsNode = findChildOfType( params, typedargslist );
@@ -2303,14 +2330,14 @@ processClassDefinition( Context *                    context,
 
     Fragment *      body( new Fragment );
     body->parent = cls;
-    updateBegin( body, defNode, context->lineShifts );
-    updateEnd( body, colonNode, context->lineShifts );
+    updateBegin( body, defNode, context );
+    updateEnd( body, colonNode, context );
     cls->body = Py::asObject( body );
 
     Fragment *      name( new Fragment );
     name->parent = cls;
-    updateBegin( name, nameNode, context->lineShifts );
-    updateEnd( name, nameNode, context->lineShifts );
+    updateBegin( name, nameNode, context );
+    updateEnd( name, nameNode, context );
     cls->name = Py::asObject( name );
 
     node *      lparNode = findChildOfType( tree, LPAR );
@@ -2321,8 +2348,8 @@ processClassDefinition( Context *                    context,
         Fragment *  baseClasses( new Fragment );
 
         baseClasses->parent = cls;
-        updateBegin( baseClasses, lparNode, context->lineShifts );
-        updateEnd( baseClasses, rparNode, context->lineShifts );
+        updateBegin( baseClasses, lparNode, context );
+        updateEnd( baseClasses, rparNode, context );
         cls->baseClasses = Py::asObject( baseClasses );
     }
 
@@ -2461,59 +2488,14 @@ addCodeBlock( Context *  context,
     Fragment *      body( new Fragment );
     body->parent = p;
 
-    // In case of multiline statement like ''' ... ''' the syntax tree does
-    // not provide any information except the last line
     node *          firstNode = (node *)(p->firstNode);
     node *          lastItem = NULL;
-    if ( firstNode->n_col_offset != -1 )
-    {
-        updateBegin( body, firstNode, context->lineShifts );
-    }
-    else
-    {
-        lastItem = skipToNode(firstNode, STRING);
-        if ( lastItem == NULL)
-            lastItem = findLastPart( firstNode );
-        if ( lastItem->n_type == STRING && lastItem->n_str != NULL )
-        {
-            updateFragmentForMultilineStringLiteral( context, lastItem, body );
-        }
-        else
-        {
-            // NB: must never happened really
-            updateBegin( body, firstNode, context->lineShifts );
-        }
-    }
+
+    updateBegin( body, firstNode, context );
 
     node *          lastNode = findLastPart( (node *)(p->lastNode) );
-    if ( lastNode->n_col_offset != -1 )
-    {
-        updateEnd( body, lastNode, context->lineShifts );
-    }
-    else
-    {
-        if ( lastNode->n_type == STRING &&
-             lastNode->n_str != NULL )
-        {
-            if ( lastItem != lastNode )
-            {
-                // If the string node is the only one then the end part is
-                // updated above
-                std::deque< const char * >  newLines;
-                getNewLineParts( lastNode->n_str, newLines );
-                const char *                lastNewLine = newLines.back();
 
-                body->endLine = lastNode->n_lineno;
-                body->endPos = strlen( lastNewLine + 1 );
-                body->end = context->lineShifts[ body->endLine ] + body->endPos - 1;
-            }
-        }
-        else
-        {
-            // NB: must never happened really
-            updateEnd( body, lastNode, context->lineShifts );
-        }
-    }
+    updateEnd( body, lastNode, context );
 
     p->updateBeginEnd( body );
     p->body = Py::asObject( body );
@@ -2527,7 +2509,7 @@ addCodeBlock( Context *  context,
 
 // Creates the code block and sets the beginning and the end of the block
 static CodeBlock *
-createCodeBlock( node *  tree, FragmentBase *  parent )
+createCodeBlock( node *  tree, FragmentBase *  parent, Context *  context )
 {
     CodeBlock *     codeBlock( new CodeBlock );
     codeBlock->parent = parent;
@@ -2536,23 +2518,31 @@ createCodeBlock( node *  tree, FragmentBase *  parent )
     codeBlock->lastNode = tree;
 
     node *      last = findLastPart( tree );
-    codeBlock->lastLine = last->n_lineno;
+
+    Fragment    temp;
+    updateEnd( &temp, last, context );
+
+    codeBlock->lastLine = temp.endLine;
     return codeBlock;
 }
 
 
 // Adds a statement to the code block and updates the end of the block
 static void
-addToCodeBlock( CodeBlock *  codeBlock, node *  tree )
+addToCodeBlock( CodeBlock *  codeBlock, node *  tree, Context *  context )
 {
     codeBlock->lastNode = tree;
 
     node *      last = findLastPart( tree );
-    codeBlock->lastLine = last->n_lineno;
-    return;
+
+    Fragment    temp;
+    updateEnd( &temp, last, context );
+
+    codeBlock->lastLine = temp.endLine;
 }
 
 
+// The function is used for Python 3.7 and below
 static int
 getStringFirstLine( node *  n )
 {
@@ -2561,8 +2551,11 @@ getStringFirstLine( node *  n )
         return n->n_lineno;
 
     std::deque< const char * >  newLines;
-    int                         count = getNewLineParts( n->n_str, newLines );
-    return n->n_lineno - count;
+    int                         newLineCount;
+    int                         charCount;
+
+    getNewLineParts( n->n_str, newLines, newLineCount, charCount );
+    return n->n_lineno - newLineCount;
 }
 
 
@@ -2740,27 +2733,33 @@ walk( Context *                    context,
                     // Not a docstring => add it to the code block
                     if ( codeBlock == NULL )
                     {
-                        codeBlock = createCodeBlock( nodeToProcess, parent );
+                        codeBlock = createCodeBlock( nodeToProcess, parent, context );
                     }
                     else
                     {
-                        // If it a multilined string literal then we do not
-                        // have the first line. We hav the last line
-                        int     realFirstLine;
-                        if ( nodeToProcess->n_col_offset == -1 )
-                            realFirstLine = getStringFirstLine( nodeToProcess );
-                        else
-                            realFirstLine = nodeToProcess->n_lineno;
+                        #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+                            // Python 3.8 always has the correct first line
+                            int     realFirstLine = nodeToProcess->n_lineno;
+                        #else
+                            // Python 3.7 and below: if it a multiline string
+                            // literal then we do not have the first line.
+                            // We only have the last line
+                            int     realFirstLine;
+                            if ( nodeToProcess->n_col_offset == -1 )
+                                realFirstLine = getStringFirstLine( nodeToProcess );
+                            else
+                                realFirstLine = nodeToProcess->n_lineno;
+                        #endif
 
                         if ( realFirstLine - codeBlock->lastLine > 1 )
                         {
                             lastAdded = addCodeBlock( context, & codeBlock, flow,
                                                       parent );
-                            codeBlock = createCodeBlock( nodeToProcess, parent );
+                            codeBlock = createCodeBlock( nodeToProcess, parent, context );
                         }
                         else
                         {
-                            addToCodeBlock( codeBlock, nodeToProcess );
+                            addToCodeBlock( codeBlock, nodeToProcess, context );
                         }
                     }
                 }

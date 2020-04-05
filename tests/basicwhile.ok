@@ -1,0 +1,43 @@
+<ControlFlow [0:39] (1,1) (4,8)
+ Body: [0:39] (1,1) (4,8)
+ LeadingComment: None
+ SideComment: None
+ LeadingCMLComments: n/a
+ SideCMLComments: n/a
+ isOK: true
+ Errors: n/a
+ Warnings: n/a
+ BangLine: None
+ EncodingLine: None
+ Docstring: None
+ Suite: <While [0:39] (1,1) (4,8)
+         Body: [0:15] (1,1) (1,16)
+         LeadingComment: None
+         SideComment: None
+         LeadingCMLComments: n/a
+         SideCMLComments: n/a
+         Condition: [6:14] (1,7) (1,15)
+         Suite: <CodeBlock [21:24] (2,5) (2,8)
+                 Body: [21:24] (2,5) (2,8)
+                 LeadingComment: None
+                 SideComment: None
+                 LeadingCMLComments: n/a
+                 SideCMLComments: n/a
+                >
+         ElsePart: <ElifPart [26:39] (3,1) (4,8)
+                    Body: [26:30] (3,1) (3,5)
+                    LeadingComment: None
+                    SideComment: None
+                    LeadingCMLComments: n/a
+                    SideCMLComments: n/a
+                    Condition: None
+                    Suite: <CodeBlock [36:39] (4,5) (4,8)
+                            Body: [36:39] (4,5) (4,8)
+                            LeadingComment: None
+                            SideComment: None
+                            LeadingCMLComments: n/a
+                            SideCMLComments: n/a
+                           >
+                   >
+        >
+>

@@ -20,8 +20,27 @@
 
 """Convinience parser launcher"""
 
+import os.path
 import sys
 
+moduleDir = None
+selfDir = os.path.dirname(os.path.abspath(__file__)) + os.path.sep
+for name in os.listdir(selfDir):
+    if 'cdmcfparser.cpython' in name:
+        moduleDir = selfDir
+        break
+if moduleDir is None:
+    upDir = os.path.dirname(selfDir[:-1])
+    for name in os.listdir(upDir):
+        if 'cdmcfparser.cpython' in name:
+            moduleDir = upDir
+            break
+if moduleDir is None:
+    print('The cdmcfparser is not found neither at ' + selfDir +
+          ' nor at ' + upDir)
+    sys.exit(1)
+
+sys.path.insert(0, upDir)
 
 def formatFlow(s):
     """Reformats the control flow output"""
