@@ -14,7 +14,7 @@ generate a flowchart-like diagrams for an arbitrary Python code as the user
 types it. Basically the IDE detects a pause in typing and regenerates the diagram.
 
 ## Python 3 Installation and Building
-The [master branch](https://github.com/SergeySatskiy/cdm-flowparser) contains code for Python 3 (3.5/3.6/3.7 grammar is covered).
+The [master branch](https://github.com/SergeySatskiy/cdm-flowparser) contains code for Python 3 (3.5/3.6/3.7/3.8 grammar is covered).
 
 The module can be installed using pip:
 
