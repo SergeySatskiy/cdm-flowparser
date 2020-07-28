@@ -660,14 +660,19 @@ injectOneLeadingComment( Context *  context,
         context->comments->pop_front();
     }
 
-    if ( leadingCML != NULL )
+    if ( leadingCML != NULL && leading != NULL )
     {
-        addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
-                              leadingLastLine, firstStatementLine,
-                              statementAsParent, statement,
-                              flowAsParent, flow );
-        leadingCML = NULL;
+        // The order must be preserved so add the CML comment first if needed
+        if ( leadingCML->beginLine < leading->beginLine )
+        {
+            addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
+                                  leadingLastLine, firstStatementLine,
+                                  statementAsParent, statement,
+                                  flowAsParent, flow );
+            leadingCML = NULL;
+        }
     }
+
     if ( leading != NULL )
     {
         if ( leadingLastLine + 1 == firstStatementLine ||
@@ -682,6 +687,15 @@ injectOneLeadingComment( Context *  context,
             flow.append( Py::asObject( leading ) );
         }
         leading = NULL;
+    }
+
+    if ( leadingCML != NULL )
+    {
+        addLeadingCMLComment( context, leadingCML, consumeAllAsLeading,
+                              leadingLastLine, firstStatementLine,
+                              statementAsParent, statement,
+                              flowAsParent, flow );
+        leadingCML = NULL;
     }
 }
 

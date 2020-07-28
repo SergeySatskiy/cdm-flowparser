@@ -1,3 +1,9 @@
+2020 XXX XX Sergey Satskiy <sergey.satskiy@gmail.com>
+
+* Release 2.3.2
+* Fix: respect the order of comments in case of a regular and a CML comment one
+  after another
+
 2020 Apr 07 Sergey Satskiy <sergey.satskiy@gmail.com>
 
 * Release 2.3.1
