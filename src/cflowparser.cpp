@@ -474,7 +474,9 @@ processEncoding( const char *   buffer,
 
 // Detects the leading comments block last line. -1 if none found
 static int
-detectLeadingBlock( Context * context, int  limit, INT_TYPE  blockShift = 0 )
+detectLeadingBlock( Context * context, int  limit,
+                    INT_TYPE  blockShift = 0,
+                    bool  consumeAllAsLeading = false )
 {
     if ( context->comments->empty() )
         return -1;
@@ -494,8 +496,11 @@ detectLeadingBlock( Context * context, int  limit, INT_TYPE  blockShift = 0 )
         if ( k->pos < blockShift )
             break;
 
-        if ( k->line > lastInBlock + 1 )
-            break;
+        if ( ! consumeAllAsLeading )
+        {
+            if ( k->line > lastInBlock + 1 )
+                break;
+        }
 
         lastInBlock = k->line;
     }
@@ -711,7 +716,9 @@ injectLeadingComments( Context *  context,
                        bool  consumeAllAsLeading )
 {
     int     leadingLastLine = detectLeadingBlock( context,
-                                                  firstStatementLine );
+                                                  firstStatementLine,
+                                                  0,
+                                                  consumeAllAsLeading );
 
     while ( leadingLastLine != -1 )
     {
@@ -719,7 +726,8 @@ injectLeadingComments( Context *  context,
                                  statement, statementAsParent,
                                  firstStatementLine, consumeAllAsLeading,
                                  leadingLastLine );
-        leadingLastLine = detectLeadingBlock( context, firstStatementLine );
+        leadingLastLine = detectLeadingBlock( context, firstStatementLine,
+                                              0, consumeAllAsLeading );
     }
     return;
 }
@@ -2916,65 +2924,164 @@ walk( Context *                    context,
 }
 
 
+// lastSpecialLine: max line (bang and encoding lines) or -1 if none found
+static int
+getFirstStatementLeadingCommentLine( Context *  context,
+                                     int  firstStatementLine,
+                                     int  lastSpecialLine )
+{
+    if ( context->comments->empty() )
+        return INT_MAX;     // The module has no comments
+
+    if ( firstStatementLine == INT_MAX )
+        return INT_MAX;     // There are no statements in the module
+
+    std::deque< CommentLine >::const_iterator   current( context->comments->begin() );
+    bool                                        found = false;
+    for ( ; current != context->comments->end(); ++current )
+    {
+        if ( current->line == firstStatementLine - 1 )
+        {
+            found = true;
+            break;
+        }
+
+        if ( current->line >= firstStatementLine )
+            break;
+    }
+
+    if ( ! found )
+        return INT_MAX;
+
+    // Here: the current iterator points to the comment line which is right
+    // before the first statement
+    if ( current->line <= lastSpecialLine )
+        return INT_MAX;     // The first statement is glued with the bang or
+                            // encoding line
+
+    // Now move back till a gap in lines or the special line
+    int     firstStatementLeadingCommentLine = current->line;
+    while ( current != context->comments->begin() )
+    {
+        --current;
+        if ( current->line != firstStatementLeadingCommentLine - 1 )
+            return firstStatementLeadingCommentLine;
+        if ( current->line <= lastSpecialLine )
+            return firstStatementLeadingCommentLine;
+
+        firstStatementLeadingCommentLine = current->line;
+    }
+
+    // curremt pints to the being of the comments
+    if ( current->line == firstStatementLeadingCommentLine - 1 &&
+         current->line > lastSpecialLine )
+        firstStatementLeadingCommentLine = current->line;
+
+    return firstStatementLeadingCommentLine;
+}
+
 
 static int
-getLastFileCommentLine( Context * context, int  expectedFirstLine )
+getLastFileCommentLine( Context *  context,
+                        int  bangLine,
+                        int  encodingLine,
+                        int  firstStatementLine )
 {
-    // expectedFirstLine is 1 or the next line after hashbang or encoding line.
     // There is one peculiar case to consider:
     // - there is no hashbang line, but the '#' character is there
     // - there is encoding line and it is at line 2
-    // => here the expected line will be 3 but the first comment will be at
-    //    line 1. It was decided to do the following in this case:
+    // It was decided to do the following in this case:
     // - if the line 1 comment is not empty, then the comment is considered as
-    //   for a file one. if the comment is empty then it is discarded and the
-    //   comment for a file is searched as there was no that empty comment.
+    //   a part of comments for the file. if the comment is empty then it is
+    //   discarded
+
+    // The provided last file comment line is 1 based. -1 means the file has no
+    // comments
 
     if ( context->comments->empty() )
         return -1;      // No comment for the file
 
-    const CommentLine &     first = context->comments->front();
-    if ( first.line > expectedFirstLine )
-        return -1;      // No comment for the file
+    // When the first statement leading comments are analyzed, they must start
+    // after this line
+    int     beginLimit = std::max( bangLine, encodingLine );
+    int     firstStatementLeadingCommentLine =
+                    getFirstStatementLeadingCommentLine( context,
+                                                         firstStatementLine,
+                                                         beginLimit );
 
-
-    if ( first.line < expectedFirstLine )
+    // Special case of discarding the first line empty #
+    if ( encodingLine != -1 && bangLine == -1 )
     {
-        // Special case described above
-        std::string     content( & context->buffer[ first.begin ],
-                                 first.end - first.begin + 1 );
-        trimInplace( content );
-        if ( content == "#" )
+        const CommentLine &     first = context->comments->front();
+        if ( first.line == 1 )
         {
-            context->comments->pop_front();
+            std::string     content( & context->buffer[ first.begin ],
+                                     first.end - first.begin + 1 );
+            trimInplace( content );
+            if ( content == "#" )
+            {
+                context->comments->pop_front();
 
-            if ( context->comments->empty() )
-                return -1;      // No comment for the file
-            if ( context->comments->front().line > expectedFirstLine )
-                return -1;      // No comment for the file
-        }
-        else
-        {
-            // The very first line is not empty, so use it for the file comment
-            return first.line;
+                if ( context->comments->empty() )
+                    return -1;      // No comment for the file
+            }
         }
     }
 
-    // Check the lines after the encoding and hashbang
-    int     lastInBlock( expectedFirstLine );
-    for ( std::deque< CommentLine >::const_iterator
-            k = context->comments->begin();
-            k != context->comments->end(); ++k )
+    int     expectedFirstLine = 1;
+    if ( beginLimit != -1 )
+        expectedFirstLine = beginLimit + 1;
+    if ( expectedFirstLine >= firstStatementLeadingCommentLine )
+        return -1;      // first statement comment already started
+
+    std::deque< CommentLine >::const_iterator   current;
+    for ( current = context->comments->begin();
+          current != context->comments->end(); ++current )
     {
-        if ( k->line > lastInBlock + 1 )
+        if ( current->line == expectedFirstLine )
             break;
-
-        lastInBlock = k->line;
+        if ( current->line >= firstStatementLeadingCommentLine )
+            return -1;  // first statement comment already started
     }
 
-    return lastInBlock;
+    if ( current == context->comments->end() )
+    {
+        if ( encodingLine != -1 && bangLine == -1 )
+        {
+            // No bang line, there is encoding, no comments after encoding
+            // It could be that there is a comment instead of the bang line
+            if ( context->comments->front().line == 1 )
+                return 1;
+        }
+
+        return -1;  // not found the first file comment line
+    }
+
+    // Here: first file comment line found and it is pointed by 'current'
+    int     lastFileCommentLine = expectedFirstLine;
+    for ( ; current != context->comments->end(); ++current )
+    {
+        if ( current->line > lastFileCommentLine + 1 )
+            break;
+        lastFileCommentLine = current->line;
+    }
+
+    return lastFileCommentLine;
 }
 
+
+static int
+findFirstStatementLine( node *  tree )
+{
+    assert( tree->n_type == file_input );
+    for ( int k = 0; k < tree->n_nchildren; ++k )
+    {
+        node *  child = &(tree->n_child[ k ]);
+        if ( child->n_type == stmt )
+            return child->n_lineno;
+    }
+    return INT_MAX;
+}
 
 
 Py::Object  parseInput( const char *  buffer, const char *  fileName,
@@ -3006,7 +3113,8 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         /* Walk the tree and populate the python structures */
         node *      root = tree;
         int         totalLines = getTotalLines( tree );
-        int         fileCommentFirstLine = 1;
+        int         bangLine = -1;
+        int         encodingLine = -1;
 
         assert( totalLines >= 0 );
         int                         lineShifts[ totalLines + 1 ];
@@ -3016,7 +3124,7 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         FragmentBase *      bang = checkForBangLine( buffer, controlFlow,
                                                      comments );
         if ( bang != NULL )
-            fileCommentFirstLine = bang->beginLine + 1;
+            bangLine = bang->beginLine;
 
         if ( root->n_type == encoding_decl )
         {
@@ -3024,12 +3132,11 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
                                                         controlFlow, comments );
             root = & (root->n_child[ 0 ]);
             if ( encoding != NULL )
-                fileCommentFirstLine = encoding->beginLine + 1;
+                encodingLine = encoding->beginLine;
         }
 
 
         assert( root->n_type == file_input );
-
 
         // Walk the syntax tree
         Context         context;
@@ -3039,15 +3146,24 @@ Py::Object  parseInput( const char *  buffer, const char *  fileName,
         context.comments = & comments;
 
         // A file may also have leading comments
-        int     lastFileCommentLine = getLastFileCommentLine( & context,
-                                                              fileCommentFirstLine );
+        int     lastFileCommentLine = getLastFileCommentLine(
+                                            & context,
+                                            bangLine, encodingLine,
+                                            findFirstStatementLine( root ) );
         if ( lastFileCommentLine != -1 )
         {
             // A leading comment for a file has been detected. Inject it to the
             // context object.
+            // true: consume all as leading. This is because of the case like:
+            //       # meaningful comment
+            //       # encoding: utf-8
+            //       # meaningful comment
+            // It is wierd but need to be handled.
+            // In the example above the lastFileCommentLine == 3 and there is
+            // a gap in the comments due to stripped encoding line
             injectLeadingComments( & context, controlFlow->nsuite,
                                    controlFlow, controlFlow, controlFlow,
-                                   lastFileCommentLine + 1, false );
+                                   lastFileCommentLine + 1, true );
         }
 
         // Check for the docstring
