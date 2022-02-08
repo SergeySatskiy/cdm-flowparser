@@ -350,10 +350,10 @@ class CDMControlFlowParserTest(unittest.TestCase):
         self.meat(self.dir + "docstringcomments.py",
                   "docstring comments test failed")
 
-#    def test_decorators(self):
-#        """Test decorators"""
-#        self.meat(self.dir + "decorators.py",
-#                  "decorators test failed")
+    def test_decorators(self):
+        """Test decorators"""
+        self.meat(self.dir + "decorators.py",
+                  "decorators test failed")
 
 #    def test_static_members(self):
 #        """Test class static members"""

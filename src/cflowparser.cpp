@@ -282,7 +282,7 @@ getNewLineParts( const char *  str,
 static void
 updateBegin( Fragment *  f, node *  n, Context *   context )
 {
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
         // Python 3.8 has the first line and column set correct
         f->beginLine = n->n_lineno;
         f->beginPos = n->n_col_offset + 1;
@@ -343,7 +343,7 @@ updateEnd( Fragment *  f, node *  n, Context *   context )
 
             getNewLineParts( n->n_str, newLines, newLineCount, charCount );
 
-            #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+            #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
                 // Python 3.8 has the first line available for multiline
                 // string literals
                 f->endLine = n->n_lineno + newLineCount;
@@ -1127,7 +1127,7 @@ processReturn( Context *  context, node *  tree,
 
     ret->updateBegin( body );
 
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
         node *  testlistNode = findChildOfType( tree, testlist_star_expr );
     #else
         node *  testlistNode = findChildOfType( tree, testlist );
@@ -1173,7 +1173,7 @@ processElifPart( Context *  context, Py::List &  flow,
 
     node *      current = tree + 1;
     node *      colonNode = NULL;
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
         if ( current->n_type == namedexpr_test )
     #else
         if ( current->n_type == test )
@@ -1396,7 +1396,7 @@ processWhile( Context *  context,
     w->updateBeginEnd( body );
 
     // condition
-    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+    #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
         node *          testNode = findChildOfType( tree, namedexpr_test );
     #else
         node *          testNode = findChildOfType( tree, test );
@@ -1776,6 +1776,55 @@ processImport( Context *  context,
     return import;
 }
 
+
+static void
+findDecoratorLRPARNodes( node *  atomExprNode,
+                         node **  lparNode,
+                         node **  rparNode )
+{
+    // This function is used for python 3.9 and possibly up
+    // The decorators grammar has been changed 3.8 -> 3.9. Now a decorator
+    // could be an arbitrary expression
+    assert( atomExprNode->n_type == atom_expr );
+
+    int         n = atomExprNode->n_nchildren;
+    int         lastChildIndex = n - 1;
+
+    if ( lastChildIndex < 0 )
+        return;
+
+    node *      lastChild = & atomExprNode->n_child[ lastChildIndex ];
+    if ( lastChild->n_type != trailer )
+        return;
+    if ( lastChild->n_nchildren < 2 )
+        return;
+    if ( lastChild->n_child[ 0 ].n_type != LPAR )
+        return;
+
+    *lparNode = & lastChild->n_child[ 0 ];
+    *rparNode = findChildOfType( lastChild, RPAR );
+    assert( *rparNode != NULL );
+    return;
+}
+
+
+static node *
+findDecoratorLastPart( node *  atomExprNode, node *  lparNode )
+{
+    // This function is used for python 3.9 and possibly up
+    // The decorators grammar has been changed 3.8 -> 3.9. Now a decorator
+    // could be an arbitrary expression
+    // The last part is a last trailer which is not the arguments
+    int         n = atomExprNode->n_nchildren;
+    if ( lparNode != NULL )
+        --n;    // The decorator has arguments so the last child must not be
+                // participating in building the name
+
+    node *      lastChild = & atomExprNode->n_child[ n - 1 ];
+    return findLastPart( lastChild );
+}
+
+
 static void
 processDecor( Context *  context, Py::List &  flow,
               FragmentBase *  parent,
@@ -1784,14 +1833,33 @@ processDecor( Context *  context, Py::List &  flow,
     assert( tree->n_type == decorator );
 
     node *      atNode = findChildOfType( tree, AT );
-    node *      nameNode = findChildOfType( tree, dotted_name );
-    node *      lparNode = findChildOfType( tree, LPAR );
     assert( atNode != NULL );
-    assert( nameNode != NULL );
+
+    #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 9
+        // The 3.9 grammar introduces a completely different structure of the
+        // tree. Now it could be an arbitrary expression.
+        node *      namedExprTestNode = findChildOfType( tree, namedexpr_test );
+        assert( namedExprTestNode != NULL );
+        node *      nameNode = skipToNode( namedExprTestNode, atom_expr );
+        assert( nameNode != NULL );
+
+        // Find LPAR
+        // Find RPAR
+        node *      lparNode = NULL;
+        node *      rparNode = NULL;
+        findDecoratorLRPARNodes( nameNode, & lparNode, & rparNode );
+
+        // Find the last name part
+        node *      lastNameNode = findDecoratorLastPart( nameNode, lparNode );
+    #else
+        node *      nameNode = findChildOfType( tree, dotted_name );
+        assert( nameNode != NULL );
+        node *      lparNode = findChildOfType( tree, LPAR );
+        node *      lastNameNode = findLastPart( nameNode );
+    #endif
 
     Decorator *     decor( new Decorator );
     Fragment *      nameFragment( new Fragment );
-    node *          lastNameNode = findLastPart( nameNode );
 
     nameFragment->parent = decor;
     updateBegin( nameFragment, nameNode, context );
@@ -1810,7 +1878,12 @@ processDecor( Context *  context, Py::List &  flow,
     else
     {
         // Decorator with arguments
-        node *          rparNode = findChildOfType( tree, RPAR );
+        #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 9
+            // The 3.9 decorator rpar node has been alrady been found
+        #else
+            node *          rparNode = findChildOfType( tree, RPAR );
+        #endif
+
         Fragment *      argsFragment( new Fragment );
 
         argsFragment->parent = decor;
@@ -2759,7 +2832,7 @@ walk( Context *                    context,
                     }
                     else
                     {
-                        #if PY_MAJOR_VERSION == 3 && PY_MINOR_VERSION == 8
+                        #if PY_MAJOR_VERSION == 3 && (PY_MINOR_VERSION == 8 || PY_MINOR_VERSION == 9)
                             // Python 3.8 always has the correct first line
                             int     realFirstLine = nodeToProcess->n_lineno;
                         #else
